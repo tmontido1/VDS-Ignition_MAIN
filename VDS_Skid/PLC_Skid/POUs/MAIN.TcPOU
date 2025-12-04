@@ -13,7 +13,7 @@ VAR
 
 //--------------------------------- Struct Init ------------------------------------//
 // Constant array of valve names	
-	stValves : ARRAY[1..gvl.valveCount] OF ST_valveSignals;
+	stValves : ARRAY[1..gvl.valveCount] OF ST_Valves;
 //----------------------------------------------------------------------------------//
 
 
@@ -27,15 +27,15 @@ VAR
     tPulseTime : TIME := T#1500MS; // Pulse duration
 	outputDO3 : BOOL := FALSE;
 	outputAO3 : REAL;
-	bTurnWFIOn : BOOL := FALSE;
 	outputA03 : REAL := 2;
 	
 //---------------------INIT Control Variables---------------------------------------//
 	hOP_ProcessState			: BOOL	:= FALSE;	// Overpressure process step active
 	hOP_ValvesPositioned	 	: BOOL 	:= FALSE;	// Position Valves
 	hOP_PumpActive				: BOOL	:= FALSE;	// Turn on Pump
+	hOP_PumpSpeed				: REAL 	:= 0;		// Pump Speed
 //----------------------------------------------------------------------------------//
-	
+
 END_VAR
 
 ]]></Declaration>
@@ -62,9 +62,11 @@ method_checkValveInputs(
 
 //------------------------- Overpressure Process (Development Only) --------------------------//
 method_OverPressure(
-	meOPprocessState 	:= hOP_ProcessState := TRUE,
+	meOPprocessState 		:= hOP_ProcessState := TRUE,
 	meValvePositionReady 	:= hOP_ValvesPositioned, 
-	meValves 			:= stValves);
+	meValves 				:= stValves,
+	mePumpActive			:=	hOP_PumpActive,
+	mePumpSpeed				:= hOP_PumpSpeed);
 //--------------------------------------------------------------------------------------------//
 
 CycleCount := CycleCount + 1;
@@ -73,16 +75,16 @@ CycleCount := CycleCount + 1;
 // Correct function block call with inputs
 varPulse(Valve := outputDO1, pulseTime := tPulseTime);
 // Assign output to global I/O
-gvl.gvDigOut1_dilutionSV := outputDO1;
+gvl.DO1_dilutionSV := outputDO1;
 
 
 // Pump Control - TBD
-gvl.DO3 := outputDO3;
-IF bTurnWFIOn THEN
+gvl.DO_wfiPump := outputDO3;
+IF hOP_PumpActive THEN
 // 	outputAO3 := IO.AO3 := 5;
-	gvl.AO3 := outputA03;
+	gvl.AO_wfiPump := outputA03;
 ELSE
-	gvl.AO3 := 0;
+	gvl.AO_wfiPump := 0;
 END_IF
 //-----------------------------Process Code ----------------------------------------//
 ]]></ST>
@@ -93,77 +95,115 @@ VAR_INPUT
 	meCheckProcessState :	BOOL;
 END_VAR
 VAR_IN_OUT
-    meValves : ARRAY[1..gvl.valveCount] OF ST_valveSignals;
+    meValves : ARRAY[1..gvl.valveCount] OF ST_Valves;
 END_VAR
 VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[
 IF meCheckProcessState THEN
-	meValves[1].DI1 := gvl.gvDigIn1_dilutionSV;
-	meValves[1].AI1 := gvl.gvAnIn1_dilutionSV;
-	meValves[1].DI2 := gvl.gvDigIn2_dilutionSV;
+	meValves[1].DI1 := gvl.DI1_dilutionSV;
+	meValves[1].AI1 := gvl.AI1_dilutionSV;
+	meValves[1].DI2 := gvl.DI2_dilutionSV;
 
-	meValves[2].DI1 := gvl.gvDigIn1_wfiSV;
-	meValves[2].AI1 := gvl.gvAnIn1_wfiSV;
-	meValves[2].DI2 := gvl.gvDigIn2_wfiSV;
+	meValves[2].DI1 := gvl.DI1_wfiSV;
+	meValves[2].AI1 := gvl.AI1_wfiSV;
+	meValves[2].DI2 := gvl.DI2_wfiSV;
 
-	meValves[3].DI1 := gvl.gvDigIn1_formDrain;
-	meValves[3].AI1 := gvl.gvAnIn1_formDrain;
-	meValves[3].DI2 := gvl.gvDigIn2_formDrain;
+	meValves[3].DI1 := gvl.DI1_formDrain;
+	meValves[3].AI1 := gvl.AI1_formDrain;
+	meValves[3].DI2 := gvl.DI2_formDrain;
 
-	meValves[4].DI1 := gvl.gvDigIn1_wfiBypassIn;
-	meValves[4].AI1 := gvl.gvAnIn1_wfiBypassIn;
-	meValves[4].DI2 := gvl.gvDigIn2_wfiBypassIn;
+	meValves[4].DI1 := gvl.DI1_wfiBypassIn;
+	meValves[4].AI1 := gvl.AI1_wfiBypassIn;
+	meValves[4].DI2 := gvl.DI2_wfiBypassIn;
 END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="method_OverPressure" Id="{f5df7d36-2695-0399-2719-78342c48306a}">
       <Declaration><![CDATA[METHOD method_OverPressure : BOOL
 VAR_INPUT
-    meOPprocessState : BOOL;
-    meValvePositionReady : BOOL;
+    meOPprocessState 		: BOOL;
+    meValvePositionReady 	: BOOL;
+	mePumpActive 			: BOOL;
+	mePumpSpeed				: REAL;
 END_VAR
 VAR_IN_OUT
-    meValves : ARRAY[1..gvl.valveCount] OF ST_valveSignals;
+    meValves : ARRAY[1..gvl.valveCount] OF ST_Valves;
 END_VAR
 VAR
     i : INT;
     j : INT;
-    valveNames : ARRAY[1..2] OF STRING := ['Dilution Selector', 'Formation Drain'];
+    valveNames : ARRAY[1..GVL.valveCount] OF STRING := ['Dilution Selector', 'Formation Drain'];
+	numValvesToPosition : INT := 2;
     targetState : INT;
     targetOpenClose : BOOL;
-END_VAR
-]]></Declaration>
+	fbSetValvesOpen : FB_SetValvesOpen;
+	fbSetValvesClose : FB_SetValvesClose;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF meOPprocessState THEN
     IF meValvePositionReady THEN
-        targetState := 1;
-        targetOpenClose := TRUE;
+        fbSetValvesOpen(
+            fbValveNames := valveNames,
+            fbNumValvesToPosition := numValvesToPosition,
+            fbValves := meValves);
     ELSE
-        targetState := 0;
-        targetOpenClose := FALSE;
+      	fbSetValvesClose(
+            fbValveNames := valveNames,
+            fbNumValvesToPosition := numValvesToPosition,
+            fbValves := meValves);
     END_IF
     
-    FOR i := 1 TO 2 DO		// change this for the number of valves.
-        FOR j := 1 TO GVL.valveCount DO
-            IF meValves[j].name = valveNames[i] THEN
-                meValves[j].state := targetState;
-                meValves[j].hOpenClose := targetOpenClose;
-                EXIT;
-            END_IF
-        END_FOR
-    END_FOR;
     ValveCtrl(fbValves := meValves);
-    gvl.gvAnOut1_dilutionSV := meValves[1].AO1;
-    gvl.gvAnOut1_wfiSV := meValves[2].AO1;
-    gvl.gvAnOut1_formDrain := meValves[3].AO1;
-    gvl.gvAnOut1_wfiBypassIn := meValves[4].AO1;
+    gvl.AO1_dilutionSV := meValves[1].AO1;
+    gvl.AO1_wfiSV := meValves[2].AO1;
+    gvl.AO1_formDrain := meValves[3].AO1;
+    gvl.AO1_wfiBypassIn := meValves[4].AO1;
 	
-	
-	
-	
-END_IF]]></ST>
+//-----------------------PUMP Control ----------------------//	
+	IF hOP_PumpActive THEN
+	// 	outputAO3 := IO.AO3 := 5;
+		GVL.DO_wfiPump := mePumpActive;
+		GVL.AO_wfiPump := mePumpSpeed;
+	ELSE
+		GVL.DO_wfiPump := mePumpActive;
+		GVL.AO_wfiPump := 0;
+	END_IF	
+//---------------------------------------------------------//	
+END_IF
+
+
+
+
+// IF meOPprocessState THEN
+//     IF meValvePositionReady THEN
+//         targetState := 1;
+//         targetOpenClose := TRUE;
+//     ELSE
+//         targetState := 0;
+//         targetOpenClose := FALSE;
+//     END_IF
+//     
+//     FOR i := 1 TO numValvesToPosition DO		// change this for the number of valves.
+//         FOR j := 1 TO GVL.valveCount DO
+//             IF meValves[j].name = valveNames[i] THEN
+//                 meValves[j].state := targetState;
+//                 meValves[j].hOpenClose := targetOpenClose;
+//                 EXIT;
+//             END_IF
+//         END_FOR
+//     END_FOR;
+//     ValveCtrl(fbValves := meValves);
+//     gvl.gvAnOut1_dilutionSV := meValves[1].AO1;
+//     gvl.gvAnOut1_wfiSV := meValves[2].AO1;
+//     gvl.gvAnOut1_formDrain := meValves[3].AO1;
+//     gvl.gvAnOut1_wfiBypassIn := meValves[4].AO1;
+// 	
+// 	
+// 	
+// 	
+// END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="zARCHIVE_method_OverPressure" Id="{5c2f25ba-3a09-058f-0efb-d6d78eec8de5}">
@@ -174,7 +214,7 @@ methodOPActive			: BOOL; // Turns the OverPressure Method On
 END_VAR
 
 VAR_IN_OUT
-    methodValves 	: ARRAY[1..gvl.valveCount] OF ST_valveSignals;   // Array of valve structures
+    methodValves 	: ARRAY[1..gvl.valveCount] OF ST_Valves;   // Array of valve structures
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -191,10 +231,10 @@ END_VAR
 		methodValves[2].hOpenClose := FALSE;
 	END_IF
 	ValveCtrl(fbValves := methodValves);
-	gvl.gvAnOut1_dilutionSV := methodValves[1].AO1;
-	gvl.gvAnOut1_wfiSV := methodValves[2].AO1;
-	gvl.gvAnOut1_formDrain := stValves[3].AO1;
-	gvl.gvAnOut1_wfiBypassIn := stValves[4].AO1;
+	gvl.AO1_dilutionSV := methodValves[1].AO1;
+	gvl.AO1_wfiSV := methodValves[2].AO1;
+	gvl.AO1_formDrain := stValves[3].AO1;
+	gvl.AO1_wfiBypassIn := stValves[4].AO1;
 END_IF]]></ST>
       </Implementation>
     </Method>

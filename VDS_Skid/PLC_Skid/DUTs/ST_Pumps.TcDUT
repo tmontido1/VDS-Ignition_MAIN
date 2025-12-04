@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="ST_Pumps" Id="{ff7f5bb5-0ab8-04dc-26e0-d6b6cc2f1c67}">
+    <Declaration><![CDATA[TYPE ST_Pumps :
+STRUCT
+	Name : STRING[20]; // Pump Name
+    DI1 : BOOL; // Pump on/off
+    AO1 : BOOL; // Pump speed control variable 0-10V
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

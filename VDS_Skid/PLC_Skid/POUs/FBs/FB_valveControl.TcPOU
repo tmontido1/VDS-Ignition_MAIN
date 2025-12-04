@@ -6,7 +6,7 @@ VAR_INPUT
     //fbValveNames : ARRAY[1..GVL.valveCount] OF STRING[20]; // Array of valve names
 END_VAR
 VAR_IN_OUT
-    fbValves : ARRAY[1..GVL.valveCount] OF ST_valveSignals;   // Array of valve structures
+    fbValves : ARRAY[1..GVL.valveCount] OF ST_Valves;   // Array of valve structures
 END_VAR
 VAR_OUTPUT
     //Status : INT;                             // 0=OK, 1=Valve not found

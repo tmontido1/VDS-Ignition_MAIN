@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="10.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{34c41433-fe3b-433f-8617-cc8c9f3f275d}</ProjectGuid>
+    <AssemblyName>Connectivity Project</AssemblyName>
+    <Name>Connectivity Project</Name>
+    <RootNamespace>Connectivity Project</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="OPC UA Server Project1.tcopcuasrv">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <tcopcuasrvdaCompile Include="OPC UA Server Project1\Data Access\Data Access.opcuada">
+      <DependentUpon>OPC UA Server Project1.tcopcuasrv</DependentUpon>
+    </tcopcuasrvdaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <tcopcuasrvalarmcCompile Include="OPC UA Server Project1\Alarms and Conditions\Alarms and Conditions.ac">
+      <DependentUpon>OPC UA Server Project1.tcopcuasrv</DependentUpon>
+    </tcopcuasrvalarmcCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <tcopcuasrvresCompile Include="OPC UA Server Project1\Resources\Resources.res">
+      <DependentUpon>OPC UA Server Project1.tcopcuasrv</DependentUpon>
+    </tcopcuasrvresCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <tcopcuasrvhaCompile Include="OPC UA Server Project1\Historical Access\Historical Access.opcuaha">
+      <DependentUpon>OPC UA Server Project1.tcopcuasrv</DependentUpon>
+    </tcopcuasrvhaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <tcopcuasrvsecCompile Include="OPC UA Server Project1\Security Access\Security Access.sec">
+      <DependentUpon>OPC UA Server Project1.tcopcuasrv</DependentUpon>
+    </tcopcuasrvsecCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <tcopcuasrvelCompile Include="OPC UA Server Project1\Event Logger\Event Logger.opcuael">
+      <DependentUpon>OPC UA Server Project1.tcopcuasrv</DependentUpon>
+    </tcopcuasrvelCompile>
+  </ItemGroup>
+  <!-- This next bit is required unless the macro used to Import your targets is defined in an MSBuild toolset. -->
+  <ProjectExtensions>
+    <ProjectCapabilities>
+      <ProjectConfigurationsDeclaredAsItems />
+      <TcConnectivity />
+    </ProjectCapabilities>
+  </ProjectExtensions>
+</Project>

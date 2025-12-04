@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_SetValvesOpen" Id="{7ff022c3-80e9-0fe9-117c-02c9597d0fa2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SetValvesOpen
+VAR_INPUT
+    fbValveNames : ARRAY[1..GVL.valveCount]OF STRING;
+    fbNumValvesToPosition : INT;
+END_VAR
+
+VAR_IN_OUT
+    fbValves : ARRAY[1..GVL.valveCount] OF ST_Valves;
+END_VAR
+VAR
+    i : INT;
+    j : INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FOR i := 1 TO fbNumValvesToPosition DO
+    FOR j := 1 TO gvl.valveCount DO
+        IF fbValves[j].name = fbValveNames[i] THEN
+            fbValves[j].state := 1;
+            fbValves[j].hOpenClose := TRUE;
+            EXIT;
+        END_IF
+    END_FOR
+END_FOR;]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

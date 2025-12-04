@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
-  <DUT Name="ST_valveSignals" Id="{ba1f9c32-7c7b-04ce-1267-5524e5c96710}">
-    <Declaration><![CDATA[TYPE ST_valveSignals :
+  <DUT Name="ST_Valves" Id="{ba1f9c32-7c7b-04ce-1267-5524e5c96710}">
+    <Declaration><![CDATA[TYPE ST_Valves :
 STRUCT
     Name : STRING[20]; // Descriptive name (e.g., 'ValveA', 'InletValve1')
     DI1 : BOOL; // Valve open feedback

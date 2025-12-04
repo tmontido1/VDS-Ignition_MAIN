@@ -20,7 +20,10 @@
     <CombineIds>true</CombineIds>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DUTs\ST_valveSignals.TcDUT">
+    <Compile Include="DUTs\ST_Pumps.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ST_Valves.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GVLs\GVL.TcGVL">
@@ -31,6 +34,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\FBs\FB_PulseValve.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\FBs\FB_SetValvesOpen.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\FBs\FB_SetValvesClose.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\FBs\FB_valveControl.TcPOU">

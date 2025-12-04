@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.19" ClassName="CNestedPlcProjDef">
-	<Project GUID="{1BDDBF17-E3DF-48D5-96F0-7F6C0205F469}" Name="PLC_Skid" PrjFilePath="..\..\PLC_Skid\PLC_Skid.plcproj" TmcFilePath="..\..\PLC_Skid\PLC_Skid.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
+	<Project GUID="{1BDDBF17-E3DF-48D5-96F0-7F6C0205F469}" Name="PLC_Skid" PrjFilePath="..\..\PLC_Skid\PLC_Skid.plcproj" TmcFilePath="..\..\PLC_Skid\PLC_Skid.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" CopyTpyToTarget="false" SymbolicMapping="true">
 		<Instance File="PLC_Skid Instance.xti"/>
 	</Project>
 </TcSmItem>

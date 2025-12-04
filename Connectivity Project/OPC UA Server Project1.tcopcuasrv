@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GlobalServerConfig xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ActiveServerUrl>opc.tcp://169.254.125.28:4840</ActiveServerUrl>
+  <ActiveServerName>opc.tcp://BTN-000tz1di:4840 [Aes128_Sha256_RsaOaep, SignAndEncrypt]</ActiveServerName>
+  <ActiveEndpoint>opc.tcp://localhost:4840 [None:None:Binary]</ActiveEndpoint>
+  <SkipServerVersion />
+  <SkipConfiguratorVersion />
+  <IgnoreServerUpdate>false</IgnoreServerUpdate>
+  <IgnoreConfiguratorUpdate>false</IgnoreConfiguratorUpdate>
+  <UaPort>4840</UaPort>
+  <EK9160MessageFeedBack>false</EK9160MessageFeedBack>
+  <IsAnonymous>true</IsAnonymous>
+  <IsUserPassword>true</IsUserPassword>
+  <ReverseConnectClients />
+</GlobalServerConfig>

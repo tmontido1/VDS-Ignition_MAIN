@@ -4,13 +4,7 @@
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL CONSTANT
 	valveCount : INT := 4;
-	sValveNames : ARRAY[1..valveCount] OF STRING[20] := ['Dilution Selector', 'WFI Selector', 'Formation Drain', 'WFI Bypass Inlet'];
-	
-	hmiDisplayW : INT := 1109;
-	hmiDisplayH : INT := 624;
-	hmiContentRegW : REAL := 1109;
-	hmiContentREgH : INT :=  400;
-	
+	sValveNames : ARRAY[1..valveCount] OF STRING[20] := ['Dilution Selector', 'WFI Selector', 'Formation Drain', 'WFI Bypass Inlet'];	
 END_VAR
 
 VAR_GLOBAL
@@ -20,37 +14,42 @@ VAR_GLOBAL
 	
 	//AO1 AT %Q* : REAL;
 	DO1 AT %Q* : BOOL;
-	AO3 AT %Q* : REAL;
-	DO3 AT %Q* : BOOL;
+	
+//---------------------------------- PUMP MAPPING -------------------------------------------------//	
+	DO_wfiPump AT %Q* : BOOL;			// Digital Output for turning pump on and off
+	AO_wfiPump AT %Q* : REAL;			// Analog Ouput for pump speed control
+//-------------------------------------------------------------------------------------------------//
 
-    // IOs Dilution Selector Valve (SV)
-    gvDigIn1_dilutionSV AT %I* : BOOL; // Digital Input 1 Selector Valve
-    gvDigIn2_dilutionSV AT %I* : BOOL; // Digital Input 2 Selector Valve
-    gvAnIn1_dilutionSV AT %I* : REAL;  // Analog Input 1 Selector Valve
-    gvDigOut1_dilutionSV AT %Q* : BOOL; // Digital Output 1 Selector Valve
-    gvAnOut1_dilutionSV AT %Q* : REAL; // Analog Output 1 Selector Valve
+
+//---------------------------------- VALVE MAPPING ------------------------------------------------//
+	// IOs Dilution Selector Valve (SV)
+    DI1_dilutionSV AT %I* : BOOL; 		// Digital Input 1 Closed Feedback
+    DI2_dilutionSV AT %I* : BOOL; 		// Digital Input 2 Open Feedback
+    AI1_dilutionSV AT %I* : REAL;  		// Analog Input 1 Valve Position Feedback
+    DO1_dilutionSV AT %Q* : BOOL; 		// Digital Output 1 Valve Initialization
+    AO1_dilutionSV AT %Q* : REAL; 		// Analog Output 1 Valve Position Control Variable (0-10V)
     
-    // IOs WFI Selector Valve (SV) - Used for water-for-injection process
-    gvDigIn1_wfiSV AT %I* : BOOL;      // Digital Input 1 WFI Selector Valve
-    gvDigIn2_wfiSV AT %I* : BOOL;      // Digital Input 2 WFI Selector Valve
-    gvAnIn1_wfiSV AT %I* : REAL;       // Analog Input 1 WFI Selector Valve
-    gvDigOut1_wfiSV AT %Q* : BOOL;     // Digital Output 1 WFI Selector Valve
-    gvAnOut1_wfiSV AT %Q* : REAL;      // Analog Output 1 WFI Selector Valve
+    // IOs WFI Selector Valve (SV) 
+    DI1_wfiSV AT %I* : BOOL;      		// Digital Input 1 Closed Feedback
+    DI2_wfiSV AT %I* : BOOL;      		// Digital Input 2 Open Feedback
+    AI1_wfiSV AT %I* : REAL;       		// Analog Input 1 Valve Position Feedback
+    DO1_wfiSV AT %Q* : BOOL;     		// Digital Output 1 Valve Initialization
+    AO1_wfiSV AT %Q* : REAL;      		// Analog Output 1 Valve Position Control Variable (0-10V)
 
-	    // IOs Formation Selector Valve (SV) - Used for water-for-injection process
-    gvDigIn1_formDrain AT %I* : BOOL;      // Digital Input 1 WFI Selector Valve
-    gvDigIn2_formDrain AT %I* : BOOL;      // Digital Input 2 WFI Selector Valve
-    gvAnIn1_formDrain AT %I* : REAL;       // Analog Input 1 WFI Selector Valve
-    gvDigOut1_formDrain AT %Q* : BOOL;     // Digital Output 1 WFI Selector Valve
-    gvAnOut1_formDrain AT %Q* : REAL;      // Analog Output 1 WFI Selector Valve
+	// IOs Formation Drain Valve (SV) 
+    DI1_formDrain AT %I* : BOOL;      	// Digital Input 1 Closed Feedback
+    DI2_formDrain AT %I* : BOOL;      	// Digital Input 2 Open Feedback
+    AI1_formDrain AT %I* : REAL;       	// Analog Input 1 Valve Position Feedback
+    DO1_formDrain AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
+    AO1_formDrain AT %Q* : REAL;      	// Analog Output 1 Valve Position Control Variable (0-10V)
 	
-		    // IOs Formation Selector Valve (SV) - Used for water-for-injection process
-    gvDigIn1_wfiBypassIn AT %I* : BOOL;      // Digital Input 1 WFI Selector Valve
-    gvDigIn2_wfiBypassIn AT %I* : BOOL;      // Digital Input 2 WFI Selector Valve
-    gvAnIn1_wfiBypassIn AT %I* : REAL;       // Analog Input 1 WFI Selector Valve
-    gvDigOut1_wfiBypassIn AT %Q* : BOOL;     // Digital Output 1 WFI Selector Valve
-    gvAnOut1_wfiBypassIn AT %Q* : REAL;      // Analog Output 1 WFI Selector Valve
-	
+	// IOs Formation Selector Valve (SV)
+    DI1_wfiBypassIn AT %I* : BOOL;      // Digital Input 1 Closed Feedback
+    DI2_wfiBypassIn AT %I* : BOOL;      // Digital Input 2 Open Feedback
+    AI1_wfiBypassIn AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
+    DO1_wfiBypassIn AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
+    AO1_wfiBypassIn AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
+//-------------------------------------------------------------------------------------------------//
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>
