@@ -4,6 +4,8 @@
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL CONSTANT
 	valveCount : INT := 4;
+	sValveNames : ARRAY[1..valveCount] OF STRING[20] := ['Dilution Selector', 'WFI Selector', 'Formation Drain', 'WFI Bypass Inlet'];
+	
 	hmiDisplayW : INT := 1109;
 	hmiDisplayH : INT := 624;
 	hmiContentRegW : REAL := 1109;
@@ -15,7 +17,6 @@ VAR_GLOBAL
 
 	myText 		: STRING(16) := 'Type';
 	myNum		: REAL := 0;
-	rSineWave 	: REAL;  // New: Sine wave value (-1 to 1)
 	
 	//AO1 AT %Q* : REAL;
 	DO1 AT %Q* : BOOL;

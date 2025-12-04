@@ -3,34 +3,25 @@
   <POU Name="MAIN" Id="{1957c99f-7c6a-48c3-b96f-a44a4ae5f1ca}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
-	//---------- HMI configs ------------------//
-	content 			: ARRAY[0..10] OF INT;
-	fbRtContent 		: ARRAY[0..10] OF R_TRIG;
-	contentSelect		: BOOL;
-	fbTpContentSelect	: TP;
-	x, y				: INT;
-	myVariable			: REAL;
-	//-----------------------------------------//
-	
-	t : ULINT;  // Task execution time
-	TimerSine   : TON;          // Timer for elapsed time
-    rElapsedSec : REAL;         // Elapsed seconds (REAL)
-    rPeriodSec  : REAL := 2.0;  // Sine period in seconds
-    rAngle      : REAL;
-	
+//-------------------- Program Initialization Variables ----------------------------//
 	i : INT; //Initialization Counter
-	CycleCount : INT := 0; // Cycle counter to split 
-    Initialized : BOOL := FALSE; // Flag for initialization
+	CycleCount : INT := 0; // Cycle counter
+	Initialized : BOOL := FALSE; // Flag for initialization
 	CtrlStatus : INT; // Status output
-// Valve Names	
+//----------------------------------------------------------------------------------//
 
-	Valves : ARRAY[1..gvl.valveCount] OF ST_valveSignals; // Array for 2 valves
-    // Constant array of valve names
-    ValveNames : ARRAY[1..gvl.valveCount] OF STRING[20] := ['Dilution Selector', 'WFI Selector', 'Formation Drain', 'WFI Bypass Inlet'];	
 
-// Instantiate Function Blocks
+//--------------------------------- Struct Init ------------------------------------//
+// Constant array of valve names	
+	stValves : ARRAY[1..gvl.valveCount] OF ST_valveSignals;
+//----------------------------------------------------------------------------------//
+
+
+//----------------------------INIT Function Blocks----------------------------------//
 	valveCtrl : FB_valveControl; // Function block instance
 	varPulse : FB_PulseValve;   // Instance of the function block
+//----------------------------------------------------------------------------------//	
+	
 // Bool	
 	outputDO1 : BOOL;           // Local output variable
     tPulseTime : TIME := T#1500MS; // Pulse duration
@@ -39,78 +30,44 @@ VAR
 	bTurnWFIOn : BOOL := FALSE;
 	outputA03 : REAL := 2;
 	
+//---------------------INIT Control Variables---------------------------------------//
+	hOP_ProcessState			: BOOL	:= FALSE;	// Overpressure process step active
+	hOP_ValvesPositioned	 	: BOOL 	:= FALSE;	// Position Valves
+	hOP_PumpActive				: BOOL	:= FALSE;	// Turn on Pump
+//----------------------------------------------------------------------------------//
+	
 END_VAR
 
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[//----------- HMI ---------------//
-a_010_Content();
-//------------------------------//
-
-//-----------------------------Process Code ----------------------------------------//
+      <ST><![CDATA[//-----------------------------Process Code ----------------------------------------//
 // Initialization
 IF NOT Initialized THEN
     FOR i := 1 TO gvl.valveCount DO
-        Valves[i].Name := ValveNames[i]; // Assign valve names
-        Valves[i].State := 0; // Initialize to Closed
-        Valves[i].AO1 := 0.0; // Closed position
-        Valves[i].Status := 0; // No faults
-        Valves[i].hOpenClose := FALSE; // Initialize to closed
+        stValves[i].Name := GVL.sValveNames[i]; // Assign valve names
+        stValves[i].State := 0; // Initialize to Closed
+        stValves[i].AO1 := 0.0; // Closed position
+        stValves[i].Status := 0; // No faults
+        stValves[i].hOpenClose := FALSE; // Initialize to closed
     END_FOR
     Initialized := TRUE;
 END_IF
 
+//------------------------------ Check Valve Inputs Every Cycle ------------------------------//
+method_checkValveInputs(
+	meCheckProcessState := TRUE, 
+	meValves 			:= stValves);
+//--------------------------------------------------------------------------------------------//
 
-// Call function block
-ValveCtrl(fbValveNames := ValveNames, fbValves := Valves, Status => CtrlStatus);
-gvl.gvAnOut1_dilutionSV := Valves[1].AO1;
-gvl.gvAnOut1_wfiSV := Valves[2].AO1;
-gvl.gvAnOut1_formDrain := Valves[3].AO1;
-gvl.gvAnOut1_wfiBypassIn := Valves[4].AO1;
-// Handle status (optional)
-IF CtrlStatus > 0 THEN
-    // Log error (e.g., to HMI) if valve(s) not found
-END_IF
+
+//------------------------- Overpressure Process (Development Only) --------------------------//
+method_OverPressure(
+	meOPprocessState 	:= hOP_ProcessState := TRUE,
+	meValvePositionReady 	:= hOP_ValvesPositioned, 
+	meValves 			:= stValves);
+//--------------------------------------------------------------------------------------------//
 
 CycleCount := CycleCount + 1;
-
-
-
-IF CycleCount MOD 2 = 1 THEN // Odd cycles (e.g., 1, 3, 5) - check DI1
-    FOR i := 1 TO GVL.valveCount DO
-        CASE i OF
-            1: // dilutionSV
-                Valves[i].DI1 := gvl.gvDigIn1_dilutionSV;
-				Valves[i].AI1 := gvl.gvAnIn1_dilutionSV;
-            2: // wfiSV
-                Valves[i].DI1 := gvl.gvDigIn1_wfiSV;
-				Valves[i].AI1 := gvl.gvAnIn1_wfiSV;
-			3: // formDrain
-                Valves[i].DI1 := gvl.gvDigIn1_formDrain;
-				Valves[i].AI1 := gvl.gvAnIn1_formDrain;
-			4: // formDrain
-                Valves[i].DI1 := gvl.gvDigIn1_wfiBypassIn;
-				Valves[i].AI1 := gvl.gvAnIn1_wfiBypassIn;
-        END_CASE
-    END_FOR
-ELSIF CycleCount MOD 2 = 0 THEN // Even cycles (e.g., 2, 4, 6) - check DI2
-    FOR i := 1 TO GVL.valveCount DO
-        CASE i OF
-            1: // dilutionSV
-                Valves[i].DI2 := gvl.gvDigIn2_dilutionSV;
-				Valves[i].AI1 := gvl.gvAnIn1_dilutionSV;
-            2: // wfiSV
-                Valves[i].DI2 := gvl.gvDigIn2_wfiSV;
-				Valves[i].AI1 := gvl.gvAnIn1_wfiSV;
-			3: // formDrain
-                Valves[i].DI2 := gvl.gvDigIn2_formDrain;
-				Valves[i].AI1 := gvl.gvAnIn1_formDrain;
-			4: // formDrain
-                Valves[i].DI2 := gvl.gvDigIn2_wfiBypassIn;
-				Valves[i].AI1 := gvl.gvAnIn1_wfiBypassIn;
-        END_CASE
-    END_FOR
-END_IF
 
 
 // Correct function block call with inputs
@@ -128,63 +85,118 @@ ELSE
 	gvl.AO3 := 0;
 END_IF
 //-----------------------------Process Code ----------------------------------------//
-
-
-
-
-
-
-
-// //--------------------Sine wave Test -------------------------------//
-// // Start timer on first scan (free-running)
-// TimerSine(IN := TRUE, PT := T#100000000MS);  // Max time = 1000s
-// 
-// // Get elapsed time in seconds
-// rElapsedSec := TIME_TO_REAL(TimerSine.ET) / 1000.0;
-// 
-// // Modulo period → clean wave
-// rElapsedSec := rElapsedSec - TRUNC(rElapsedSec / rPeriodSec) * rPeriodSec;
-// 
-// // Generate sine
-// rAngle := (rElapsedSec / rPeriodSec) * 2.0 * 3.1415926535;
-// GVL.rSineWave := SIN(rAngle);]]></ST>
+]]></ST>
     </Implementation>
-    <Action Name="a_010_Content" Id="{0033b6c0-2e45-0872-0450-8b64094c5b8f}">
+    <Method Name="method_checkValveInputs" Id="{c985539e-4eba-05d6-07b1-841c56d8c333}">
+      <Declaration><![CDATA[METHOD method_checkValveInputs : BOOL
+VAR_INPUT
+	meCheckProcessState :	BOOL;
+END_VAR
+VAR_IN_OUT
+    meValves : ARRAY[1..gvl.valveCount] OF ST_valveSignals;
+END_VAR
+VAR
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// Rising edge button ucContent
-FOR x := 0 TO 10 DO
-    fbRtContent[x](CLK := content[x] = 10);
-END_FOR
+        <ST><![CDATA[
+IF meCheckProcessState THEN
+	meValves[1].DI1 := gvl.gvDigIn1_dilutionSV;
+	meValves[1].AI1 := gvl.gvAnIn1_dilutionSV;
+	meValves[1].DI2 := gvl.gvDigIn2_dilutionSV;
 
-// Reset all pages
-FOR y := 0 TO 10 DO
-    IF fbRtContent[y].Q THEN
-        contentSelect := TRUE;
-        FOR x := 0 TO 10 DO
-            content[x] := 0;
-        END_FOR
-        content[y] := 10; // hold on to the triggered page
-    END_IF
-END_FOR
+	meValves[2].DI1 := gvl.gvDigIn1_wfiSV;
+	meValves[2].AI1 := gvl.gvAnIn1_wfiSV;
+	meValves[2].DI2 := gvl.gvDigIn2_wfiSV;
 
-// Page selection with delay
-fbTpContentSelect(IN := contentSelect, PT := T#15MS, Q => contentSelect);
+	meValves[3].DI1 := gvl.gvDigIn1_formDrain;
+	meValves[3].AI1 := gvl.gvAnIn1_formDrain;
+	meValves[3].DI2 := gvl.gvDigIn2_formDrain;
 
-IF contentSelect THEN
-    RETURN;
-END_IF // Update page status after switching / white is delayed
-
-// Here you can edit the status of the pages
-
-// Page 1
-content[1] := 0;
-
-// Page 2
-content[2] := 0;
-
-// Page 2
-content[3] := 0;]]></ST>
+	meValves[4].DI1 := gvl.gvDigIn1_wfiBypassIn;
+	meValves[4].AI1 := gvl.gvAnIn1_wfiBypassIn;
+	meValves[4].DI2 := gvl.gvDigIn2_wfiBypassIn;
+END_IF]]></ST>
       </Implementation>
-    </Action>
+    </Method>
+    <Method Name="method_OverPressure" Id="{f5df7d36-2695-0399-2719-78342c48306a}">
+      <Declaration><![CDATA[METHOD method_OverPressure : BOOL
+VAR_INPUT
+    meOPprocessState : BOOL;
+    meValvePositionReady : BOOL;
+END_VAR
+VAR_IN_OUT
+    meValves : ARRAY[1..gvl.valveCount] OF ST_valveSignals;
+END_VAR
+VAR
+    i : INT;
+    j : INT;
+    valveNames : ARRAY[1..2] OF STRING := ['Dilution Selector', 'Formation Drain'];
+    targetState : INT;
+    targetOpenClose : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF meOPprocessState THEN
+    IF meValvePositionReady THEN
+        targetState := 1;
+        targetOpenClose := TRUE;
+    ELSE
+        targetState := 0;
+        targetOpenClose := FALSE;
+    END_IF
+    
+    FOR i := 1 TO 2 DO		// change this for the number of valves.
+        FOR j := 1 TO GVL.valveCount DO
+            IF meValves[j].name = valveNames[i] THEN
+                meValves[j].state := targetState;
+                meValves[j].hOpenClose := targetOpenClose;
+                EXIT;
+            END_IF
+        END_FOR
+    END_FOR;
+    ValveCtrl(fbValves := meValves);
+    gvl.gvAnOut1_dilutionSV := meValves[1].AO1;
+    gvl.gvAnOut1_wfiSV := meValves[2].AO1;
+    gvl.gvAnOut1_formDrain := meValves[3].AO1;
+    gvl.gvAnOut1_wfiBypassIn := meValves[4].AO1;
+	
+	
+	
+	
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="zARCHIVE_method_OverPressure" Id="{5c2f25ba-3a09-058f-0efb-d6d78eec8de5}">
+      <Declaration><![CDATA[METHOD zARCHIVE_method_OverPressure : BOOL
+VAR_INPUT
+methodOPprocessState	: BOOL; // Process method is active
+methodOPActive			: BOOL; // Turns the OverPressure Method On
+END_VAR
+
+VAR_IN_OUT
+    methodValves 	: ARRAY[1..gvl.valveCount] OF ST_valveSignals;   // Array of valve structures
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF methodOPprocessState THEN
+	IF methodOPActive THEN
+		methodValves[1].state := 1;
+		methodValves[1].hOpenClose := TRUE;
+		methodValves[2].state := 1;
+		methodValves[2].hOpenClose := TRUE;
+	ELSE
+		methodValves[1].state := 0;
+		methodValves[1].hOpenClose := FALSE;
+		methodValves[2].state := 0;
+		methodValves[2].hOpenClose := FALSE;
+	END_IF
+	ValveCtrl(fbValves := methodValves);
+	gvl.gvAnOut1_dilutionSV := methodValves[1].AO1;
+	gvl.gvAnOut1_wfiSV := methodValves[2].AO1;
+	gvl.gvAnOut1_formDrain := stValves[3].AO1;
+	gvl.gvAnOut1_wfiBypassIn := stValves[4].AO1;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
   </POU>
 </TcPlcObject>

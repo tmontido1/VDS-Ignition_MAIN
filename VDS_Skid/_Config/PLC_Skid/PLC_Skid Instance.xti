@@ -22,12 +22,12 @@
 		<OwnerA>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 13 (IOLITE GATE LATCH v2.00 Bus2)^Term 14 (IOLITEr 32xDI Bus2)">
 				<Link VarA="PlcTask Inputs^GVL.gvDigIn1_dilutionSV" VarB="AI TxPDO-Map^DI1" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.gvDigIn1_formDrain" VarB="AI TxPDO-Map^DI9" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.gvDigIn1_wfiBypassIn" VarB="AI TxPDO-Map^DI11" Size="1"/>
+				<Link VarA="PlcTask Inputs^GVL.gvDigIn1_formDrain" VarB="AI TxPDO-Map^DI8" Size="1"/>
+				<Link VarA="PlcTask Inputs^GVL.gvDigIn1_wfiBypassIn" VarB="AI TxPDO-Map^DI10" Size="1"/>
 				<Link VarA="PlcTask Inputs^GVL.gvDigIn1_wfiSV" VarB="AI TxPDO-Map^DI3" Size="1"/>
 				<Link VarA="PlcTask Inputs^GVL.gvDigIn2_dilutionSV" VarB="AI TxPDO-Map^DI2" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.gvDigIn2_formDrain" VarB="AI TxPDO-Map^DI10" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.gvDigIn2_wfiBypassIn" VarB="AI TxPDO-Map^DI12" Size="1"/>
+				<Link VarA="PlcTask Inputs^GVL.gvDigIn2_formDrain" VarB="AI TxPDO-Map^DI9" Size="1"/>
+				<Link VarA="PlcTask Inputs^GVL.gvDigIn2_wfiBypassIn" VarB="AI TxPDO-Map^DI11" Size="1"/>
 				<Link VarA="PlcTask Inputs^GVL.gvDigIn2_wfiSV" VarB="AI TxPDO-Map^DI4" Size="1"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 13 (IOLITE GATE LATCH v2.00 Bus2)^Term 15 (IOLITEr 16xLV Bus2)">

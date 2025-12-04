@@ -9,7 +9,7 @@ STRUCT
     DO1 : BOOL; // Valve Initialization Signal
     AI1 : REAL; // Valve position (0-10V)
     AO1 : REAL; // Valve setpoint (0-10V)
-    State : INT; // Operating state (0=Closed, 1=Open, 2=OpenLoop, 3=PID)
+    State : INT; // Operating state (0=Off, 1=Open/Close, 2=OpenLoop, 3=PID)
     hOpenClose : BOOL; // HMI open/close input
     Setpoint : REAL; // Setpoint for OpenLoop or PID (0-10V)
     PV : REAL; // Process Variable for PID

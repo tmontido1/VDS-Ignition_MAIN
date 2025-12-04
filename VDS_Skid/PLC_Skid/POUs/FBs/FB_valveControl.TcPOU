@@ -3,13 +3,13 @@
   <POU Name="FB_valveControl" Id="{476bcf38-e1d4-0cba-1204-1378ddf6ec7f}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_valveControl
 VAR_INPUT
-    fbValveNames : ARRAY[1..gvl.valveCount] OF STRING[20]; // Array of valve names
+    //fbValveNames : ARRAY[1..GVL.valveCount] OF STRING[20]; // Array of valve names
 END_VAR
 VAR_IN_OUT
-    fbValves : ARRAY[1..gvl.valveCount] OF ST_valveSignals;   // Array of valve structures
+    fbValves : ARRAY[1..GVL.valveCount] OF ST_valveSignals;   // Array of valve structures
 END_VAR
 VAR_OUTPUT
-    Status : INT;                             // 0=OK, 1=Valve not found
+    //Status : INT;                             // 0=OK, 1=Valve not found
 END_VAR
 VAR
     i : INT;                                  // Internal loop variable
@@ -17,11 +17,11 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[// Initialize output
-Status := 0;
+//Status := 0;
 
 // Control valves based on hOpenClose
 FOR i := 1 TO gvl.valveCount DO
-    IF fbValves[i].Name = fbValveNames[i] THEN
+    //IF fbValves[i].Name = fbValveNames[i] THEN
         CASE fbValves[i].State OF
             1: // Open/Close mode
                 IF fbValves[i].hOpenClose THEN
@@ -35,11 +35,11 @@ FOR i := 1 TO gvl.valveCount DO
                 fbValves[i].AO1 := 0.0;
             ELSE
                 fbValves[i].AO1 := 0.0;
-                Status := Status + 2;
+                //Status := Status + 2;
         END_CASE
-    ELSE
-        Status := Status + 1;
-    END_IF
+    //ELSE
+        //Status := Status + 1;
+    //END_IF
 END_FOR]]></ST>
     </Implementation>
   </POU>
