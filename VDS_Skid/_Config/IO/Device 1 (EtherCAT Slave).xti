@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.19" ClassName="CDevEtherCATSlaveDef" SubType="130">
+	<Device Id="1" DevType="130" AmsNetId="192.168.43.43.2.255">
+		<Name>__FILENAME__</Name>
+		<AddressInfo>
+			<Ccat>
+				<Address>0</Address>
+				<Offset>0</Offset>
+				<Size>0</Size>
+				<BaseAddr>0</BaseAddr>
+				<BusNo>0</BusNo>
+				<SlotNo>0</SlotNo>
+			</Ccat>
+		</AddressInfo>
+		<Vars VarGrpType="1" InsertType="1">
+			<Name>Inputs</Name>
+		</Vars>
+		<Vars VarGrpType="2" InsertType="1">
+			<Name>Outputs</Name>
+		</Vars>
+		<Image Id="1" AddrType="1" ImageType="2">
+			<Name>Image</Name>
+		</Image>
+		<EtherCATSlave/>
+	</Device>
+</TcSmItem>

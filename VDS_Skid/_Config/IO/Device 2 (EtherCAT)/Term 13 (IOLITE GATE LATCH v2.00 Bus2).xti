@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.19" ClassName="CFlbTermDef" SubType="9099">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-00200000000B}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..10] OF BIT</Name>
+			<BitSize>11</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>11</Elements>
+			</ArrayInfo>
+		</DataType>
+	</DataTypes>
+	<ImageDatas>
+		<ImageData Id="1000">424de6000000000000007600000028000000100000000e000000010004000000000070000000c40e0000c40e000000000000000000000000000000008000008000000080800080000000800080008080000080808000c0c0c0000000ff0000ff000000ffff00ff000000ff00ff00ffff0000ffffff00ddddddddddddddddd9999999999999dddd99999999999dddd9dd9999999dd9ddd999dd999dd999dddd9999d9d9999ddddd99999d99999dddddd9999d9999ddddddd9999d9999dddddddd999d999ddddddddd999d999dddddddddd99d99dddddddddddd9d9ddddddddddddddddddddddd</ImageData>
+	</ImageDatas>
+	<Box Id="13" BoxType="9099" BoxFlags="#x00000020">
+		<Name>__FILENAME__</Name>
+		<ImageId>1000</ImageId>
+		<EtherCAT SlaveType="2" PdiType="#x0c05" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="63" FoeType="1" VendorId="#xdebe50f7" ProductCode="#x000000fa" RevisionNo="#x00031000" InfoDataAddr="true" EnableWdDivider0400="true" EnableWdTime0420="true" TimeoutStateChange1="2000" TimeoutStateChange2="9000" TimeoutMailbox2="2000" PortPhys="305" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="IOLITE GATE LATCH v2.00 Bus2" Desc="IOLITE GATE LATCH v2.00 Bus2">
+			<SyncMan>0010800026000100010000002200c0008000001026010000</SyncMan>
+			<SyncMan>0014800022000100020000002200c0008000001422010000</SyncMan>
+			<SyncMan>001802006400010003000000000000000200001864010000</SyncMan>
+			<SyncMan>001c24002000010004000000000000000600001c20010000</SyncMan>
+			<Fmmu>0000000000000000001800020100000001000000000000000000000000000000</Fmmu>
+			<Fmmu>0000000000000000001c00010100000002000000000000000000000000000000</Fmmu>
+			<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+			<BootStrapData>0010800000148000</BootStrapData>
+			<DcMode>534d0000000000000000000000000000534d2053796e6300000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000</DcMode>
+			<DcMode>44432d62757332000000000000000000427573322044432053796e63000000000000000000000000000000000000000040420f000000000000000000e70300070000000000000000000000000000000000000000000000000000000000000000</DcMode>
+			<DcMode>44432d62757331000000000000000000427573312044432053796e63000000000000000000000000000000000000000040420f000000000000000000e70300030000000000000000000000000000000000000000000000000000000000000000</DcMode>
+			<MBoxUserCmdData>004003000a0000001f00000003000000000000000000000000000000000000002020800e02000000000042757332206d6f64653a20303030302028444f204e4f54204348414e47452900</MBoxUserCmdData>
+			<Pdo Name="TimeSync TxPDO-Map" Index="#x1a00" Flags="#x0000" SyncMan="3">
+				<Entry Name="Sync Mode" Index="#x10f4" Sub="#x01">
+					<Type>BIT2</Type>
+				</Entry>
+				<Entry>
+					<Type GUID="{18071995-0000-0000-0000-00200000000B}">ARRAY [0..10] OF BIT</Type>
+				</Entry>
+				<Entry Name="CtrlValueUpdateToggle" Index="#x10f4" Sub="#x0e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="TimeStampUpdateToggle" Index="#x10f4" Sub="#x0f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="ExtDeviceNotConnected" Index="#x10f4" Sub="#x10">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="IntTimeStamp" Index="#x10f4" Sub="#x11">
+					<Type>ULINT</Type>
+				</Entry>
+				<Entry Name="ExtTimeStamp" Index="#x10f4" Sub="#x12">
+					<Type>ULINT</Type>
+				</Entry>
+				<Entry Name="TimeControlValue" Index="#x10f4" Sub="#x13">
+					<Type>DINT</Type>
+				</Entry>
+				<Entry Name="BufCounter" Index="#x6000" Sub="#x07">
+					<Type>UDINT</Type>
+				</Entry>
+				<Entry Name="ReadPacketNumber" Index="#x6000" Sub="#x08">
+					<Type>UDINT</Type>
+				</Entry>
+				<Entry Name="Reg2" Index="#x6000" Sub="#x09">
+					<Type>UDINT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="AI TxPDO-Map" Index="#x1a20" Flags="#x0000" SyncMan="3">
+				<Entry Name="DI1" Index="#x6020" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI2" Index="#x6020" Sub="#x02">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI3" Index="#x6020" Sub="#x03">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI4" Index="#x6020" Sub="#x04">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI5" Index="#x6020" Sub="#x05">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI6" Index="#x6020" Sub="#x06">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI7" Index="#x6020" Sub="#x07">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI8" Index="#x6020" Sub="#x08">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI9" Index="#x6020" Sub="#x09">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI10" Index="#x6020" Sub="#x0a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI11" Index="#x6020" Sub="#x0b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI12" Index="#x6020" Sub="#x0c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI13" Index="#x6020" Sub="#x0d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI14" Index="#x6020" Sub="#x0e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI15" Index="#x6020" Sub="#x0f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI16" Index="#x6020" Sub="#x10">
+					<Type>BIT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="DO RxPDO-Map" Index="#x1610" InOut="1" Flags="#x0000" SyncMan="2">
+				<Entry Name="LED 1" Index="#x7010" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="LED 2" Index="#x7010" Sub="#x02">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="LED 3" Index="#x7010" Sub="#x03">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="LED 4" Index="#x7010" Sub="#x04">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Command" Index="#x7010" Sub="#x05">
+					<Type>BIT4</Type>
+				</Entry>
+				<Entry Name="OutByte" Index="#x7010" Sub="#x06">
+					<Type>USINT</Type>
+				</Entry>
+			</Pdo>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+		</EtherCAT>
+		<Box File="Term 14 (IOLITEr 32xDI Bus2).xti" Id="14">
+			<EtherCAT PortABoxInfo="#x0100000d"/>
+		</Box>
+		<Box File="Term 15 (IOLITEr 16xLV Bus2).xti" Id="15">
+			<EtherCAT PortABoxInfo="#x0100000e"/>
+		</Box>
+		<Box File="Term 16 (IOLITEr 16xAO Bus2).xti" Id="16">
+			<EtherCAT PortABoxInfo="#x0100000f"/>
+		</Box>
+		<Box File="Term 15 (EL9011).xti" Id="18">
+			<EtherCAT PortABoxInfo="#x01000010"/>
+		</Box>
+	</Box>
+</TcSmItem>

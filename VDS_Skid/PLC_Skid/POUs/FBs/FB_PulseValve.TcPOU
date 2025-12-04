@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_PulseValve" Id="{4163b81d-d908-0c25-2fea-691747ee1a39}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PulseValve
+VAR_INPUT
+	Valve : REFERENCE TO BOOL;  // Reference to BOOL output (e.g., output1)
+    pulseTime : TIME;               // Pulse duration
+END_VAR
+VAR_OUTPUT
+	bDone : BOOL;               // TRUE when pulse completes
+    bBusy : BOOL;               // TRUE during pulse
+END_VAR
+VAR
+	timer : TON;
+    bTriggerOld : BOOL;
+    bRising : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Rising edge detection
+bRising := Valve AND NOT bTriggerOld;
+bTriggerOld := Valve;
+
+// Start timer on rising edge
+IF bRising THEN
+    timer(IN := TRUE, PT := pulseTime);
+END_IF;
+
+//Execute Timer
+timer();
+
+// Output control: Valve ON during timing, OFF after
+IF timer.IN AND NOT timer.Q THEN
+Valve := timer.IN;
+ELSE
+VALVE := FALSE;
+END_IF
+
+// Reset and signal done
+IF timer.Q THEN
+    timer.IN := FALSE;
+    bDone := TRUE;
+END_IF;
+
+bBusy := timer.IN;]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

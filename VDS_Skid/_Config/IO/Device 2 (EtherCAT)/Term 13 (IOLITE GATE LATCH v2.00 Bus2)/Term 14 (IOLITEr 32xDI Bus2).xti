@@ -1,0 +1,251 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.19" ClassName="CFlbTermDef" SubType="9099">
+	<ImageDatas>
+		<ImageData Id="1000">424de6000000000000007600000028000000100000000e000000010004000000000070000000c40e0000c40e000000000000000000000000000000008000008000000080800080000000800080008080000080808000c0c0c0000000ff0000ff000000ffff00ff000000ff00ff00ffff0000ffffff00ddddddddddddddddd9999999999999dddd99999999999dddd9dd9999999dd9ddd999dd999dd999dddd9999d9d9999ddddd99999d99999dddddd9999d9999ddddddd9999d9999dddddddd999d999ddddddddd999d999dddddddddd99d99dddddddddddd9d9ddddddddddddddddddddddd</ImageData>
+	</ImageDatas>
+	<Box Id="14" BoxType="9099" BoxFlags="#x00000020">
+		<Name>__FILENAME__</Name>
+		<ImageId>1000</ImageId>
+		<EtherCAT SlaveType="2" PdiType="#x0c05" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="47" FoeType="1" VendorId="#xdebe50f7" ProductCode="#x000000fb" RevisionNo="#x00031000" InfoDataAddr="true" DdTime0420="2000" EnableWdDivider0400="true" EnableWdTime0420="true" TimeoutStateChange1="2000" TimeoutStateChange2="9000" TimeoutMailbox2="2000" PortPhys="51" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="IOLITEr 32xDI Bus2" Desc="IOLITEr 32xDI Bus2">
+			<SyncMan>0010800026000100010000002200c0008000001026010000</SyncMan>
+			<SyncMan>0014800022000100020000002200c0008000001422010000</SyncMan>
+			<SyncMan>001804006400010003000000000000000200001864010000</SyncMan>
+			<SyncMan>001c04002000010004000000000000000600001c20010000</SyncMan>
+			<Fmmu>0000000000000000001800020100000001000000000000000000000000000000</Fmmu>
+			<Fmmu>0000000000000000001c00010100000002000000000000000000000000000000</Fmmu>
+			<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+			<BootStrapData>0010800000148000</BootStrapData>
+			<DcMode>534d0000000000000000000000000000534d2053796e6300000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000</DcMode>
+			<DcMode>4443000000000000000000000000000044432053796e630000000000000000000000000000000000000000000000000000ca9a3b0000000000000000000000070000000000000000000000000000000000000000000000000000000000000000</DcMode>
+			<MBoxUserCmdData>004003000a0000001f00000003000000000000000000000000000000000000002020800a02000000030042757332206d6f64653a2030303030203d2044432c2030333030203d20534d00</MBoxUserCmdData>
+			<Pdo Name="AI TxPDO-Map" Index="#x1a20" Flags="#x0000" SyncMan="3">
+				<Entry Name="DI1" Index="#x6020" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI2" Index="#x6020" Sub="#x02">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI3" Index="#x6020" Sub="#x03">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI4" Index="#x6020" Sub="#x04">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI5" Index="#x6020" Sub="#x05">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI6" Index="#x6020" Sub="#x06">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI7" Index="#x6020" Sub="#x07">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI8" Index="#x6020" Sub="#x08">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI9" Index="#x6020" Sub="#x09">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI10" Index="#x6020" Sub="#x0a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI11" Index="#x6020" Sub="#x0b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI12" Index="#x6020" Sub="#x0c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI13" Index="#x6020" Sub="#x0d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI14" Index="#x6020" Sub="#x0e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI15" Index="#x6020" Sub="#x0f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI16" Index="#x6020" Sub="#x10">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI17" Index="#x6020" Sub="#x11">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI18" Index="#x6020" Sub="#x12">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI19" Index="#x6020" Sub="#x13">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI20" Index="#x6020" Sub="#x14">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI21" Index="#x6020" Sub="#x15">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI22" Index="#x6020" Sub="#x16">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI23" Index="#x6020" Sub="#x17">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI24" Index="#x6020" Sub="#x18">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI25" Index="#x6020" Sub="#x19">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI26" Index="#x6020" Sub="#x1a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI27" Index="#x6020" Sub="#x1b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI28" Index="#x6020" Sub="#x1c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI29" Index="#x6020" Sub="#x1d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI30" Index="#x6020" Sub="#x1e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI31" Index="#x6020" Sub="#x1f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="DI32" Index="#x6020" Sub="#x20">
+					<Type>BIT</Type>
+				</Entry>
+			</Pdo>
+			<Pdo Name="DO RxPDO-Map" Index="#x1610" InOut="1" Flags="#x0000" SyncMan="2">
+				<Entry Name="EMPTY_1" Index="#x7010" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_2" Index="#x7010" Sub="#x02">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_3" Index="#x7010" Sub="#x03">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_4" Index="#x7010" Sub="#x04">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_5" Index="#x7010" Sub="#x05">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_6" Index="#x7010" Sub="#x06">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_7" Index="#x7010" Sub="#x07">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_8" Index="#x7010" Sub="#x08">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_9" Index="#x7010" Sub="#x09">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_10" Index="#x7010" Sub="#x0a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_11" Index="#x7010" Sub="#x0b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_12" Index="#x7010" Sub="#x0c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_13" Index="#x7010" Sub="#x0d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_14" Index="#x7010" Sub="#x0e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_15" Index="#x7010" Sub="#x0f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_16" Index="#x7010" Sub="#x10">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_17" Index="#x7010" Sub="#x11">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_18" Index="#x7010" Sub="#x12">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_19" Index="#x7010" Sub="#x13">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_20" Index="#x7010" Sub="#x14">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_21" Index="#x7010" Sub="#x15">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_22" Index="#x7010" Sub="#x16">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_23" Index="#x7010" Sub="#x17">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_24" Index="#x7010" Sub="#x18">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_25" Index="#x7010" Sub="#x19">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_26" Index="#x7010" Sub="#x1a">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_27" Index="#x7010" Sub="#x1b">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_28" Index="#x7010" Sub="#x1c">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_29" Index="#x7010" Sub="#x1d">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_30" Index="#x7010" Sub="#x1e">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_31" Index="#x7010" Sub="#x1f">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="EMPTY_32" Index="#x7010" Sub="#x20">
+					<Type>BIT</Type>
+				</Entry>
+			</Pdo>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+			<CoeProfile ProfileNo="5001"/>
+		</EtherCAT>
+	</Box>
+</TcSmItem>
