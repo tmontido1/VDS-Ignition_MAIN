@@ -3,8 +3,12 @@
   <GVL Name="GVL" Id="{ae3bfd4d-cad6-090e-2b29-8bdb174a4977}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL CONSTANT
-	valveCount : INT := 4;
-	sValveNames : ARRAY[1..valveCount] OF STRING[20] := ['Dilution Selector', 'WFI Selector', 'Formation Drain', 'WFI Bypass Inlet'];	
+	valveCount : INT := 5;
+	sValveNames : ARRAY[1..valveCount] OF STRING[30] := ['Dilution Selector', 
+														'WFI Selector', 
+														'Formation Drain', 
+														'WFI Filter Bypass Inlet',
+														'WFI Filter In'];	
 END_VAR
 
 VAR_GLOBAL
@@ -49,6 +53,13 @@ VAR_GLOBAL
     AI1_wfiBypassIn AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
     DO1_wfiBypassIn AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
     AO1_wfiBypassIn AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
+	
+		// IOs Formation Selector Valve (SV)
+    DI1_wfiFilterIn AT %I* : BOOL;      // Digital Input 1 Closed Feedback
+    DI2_wfiFilterIn AT %I* : BOOL;      // Digital Input 2 Open Feedback
+    AI1_wfiFilterIn AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
+    DO1_wfiFilterIn AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
+    AO1_wfiFilterIn AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
 //-------------------------------------------------------------------------------------------------//
 END_VAR]]></Declaration>
   </GVL>

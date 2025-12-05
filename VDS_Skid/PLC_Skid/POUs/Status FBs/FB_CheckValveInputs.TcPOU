@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_CheckValveInputs" Id="{a514c28a-0ee7-0c76-3b9b-75542349311b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_CheckValveInputs
+VAR_INPUT
+	fbCheckProcessState :	BOOL;
+END_VAR
+VAR_IN_OUT
+    fbValves : ARRAY[1..gvl.valveCount] OF ST_Valves;
+END_VAR
+VAR_OUTPUT
+	
+END_VAR
+VAR
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF fbCheckProcessState THEN
+	fbValves[1].DI1 := gvl.DI1_dilutionSV;
+	fbValves[1].AI1 := gvl.AI1_dilutionSV;
+	fbValves[1].DI2 := gvl.DI2_dilutionSV;
+
+	fbValves[2].DI1 := gvl.DI1_wfiSV;
+	fbValves[2].AI1 := gvl.AI1_wfiSV;
+	fbValves[2].DI2 := gvl.DI2_wfiSV;
+
+	fbValves[3].DI1 := gvl.DI1_formDrain;
+	fbValves[3].AI1 := gvl.AI1_formDrain;
+	fbValves[3].DI2 := gvl.DI2_formDrain;
+
+	fbValves[4].DI1 := gvl.DI1_wfiBypassIn;
+	fbValves[4].AI1 := gvl.AI1_wfiBypassIn;
+	fbValves[4].DI2 := gvl.DI2_wfiBypassIn;
+	
+	fbValves[5].DI1 := gvl.DI1_wfiFilterIn;
+	fbValves[5].AI1 := gvl.AI1_wfiFilterIn;
+	fbValves[5].DI2 := gvl.DI2_wfiFilterIn;
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

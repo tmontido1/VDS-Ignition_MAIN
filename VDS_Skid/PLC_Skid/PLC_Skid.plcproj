@@ -33,26 +33,34 @@
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FBs\FB_PulseValve.TcPOU">
+    <Compile Include="POUs\General FBs\FB_PulseValve.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FBs\FB_SetValvesOpen.TcPOU">
+    <Compile Include="POUs\General FBs\FB_SetValvesOpen.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FBs\FB_SetValvesClose.TcPOU">
+    <Compile Include="POUs\General FBs\FB_SetValvesClose.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FBs\FB_valveControl.TcPOU">
+    <Compile Include="POUs\General FBs\FB_valveControl.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\Status FBs\FB_CheckValveInputs.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\UnitOp FBs\FBUO_OverPressure.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DUTs" />
     <Folder Include="GVLs" />
-    <Folder Include="POUs\FBs" />
+    <Folder Include="POUs\General FBs" />
+    <Folder Include="POUs\Status FBs" />
+    <Folder Include="POUs\UnitOp FBs" />
     <Folder Include="VISUs" />
     <Folder Include="POUs" />
   </ItemGroup>

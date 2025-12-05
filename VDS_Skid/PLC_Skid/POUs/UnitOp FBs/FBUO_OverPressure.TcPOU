@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FBUO_OverPressure" Id="{c0ef6840-d220-046d-0544-b54879ef3bc7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FBUO_OverPressure
+VAR_INPUT
+    fbOPprocessState 		: BOOL;
+    fbValvePositionReady 	: BOOL;
+	fbPumpActive 			: BOOL;
+	fbPumpSpeed				: REAL;
+END_VAR
+VAR_IN_OUT
+    fbValves : ARRAY[1..gvl.valveCount] OF ST_Valves;
+END_VAR
+VAR_OUTPUT
+	
+END_VAR
+VAR
+    i : INT;
+    j : INT;
+    valveNames : ARRAY[1..GVL.valveCount] OF STRING := ['WFI Filter In'];
+	numValvesToPosition : INT := 2;
+    targetState : INT;
+    targetOpenClose : BOOL;
+	fbSetValvesOpen : FB_SetValvesOpen;
+	fbSetValvesClose : FB_SetValvesClose;
+	valveCtrl : FB_valveControl;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF fbOPprocessState THEN
+    IF fbValvePositionReady THEN
+        fbSetValvesOpen(
+            fbValveNames := valveNames,
+            fbNumValvesToPosition := numValvesToPosition,
+            fbValves := fbValves);
+    ELSE
+      	fbSetValvesClose(
+            fbValveNames := valveNames,
+            fbNumValvesToPosition := numValvesToPosition,
+            fbValves := fbValves);
+    END_IF
+    
+    ValveCtrl(fbValves := fbValves);
+    gvl.AO1_dilutionSV := fbValves[1].AO1;
+    gvl.AO1_wfiSV := fbValves[2].AO1;
+    gvl.AO1_formDrain := fbValves[3].AO1;
+    gvl.AO1_wfiBypassIn := fbValves[4].AO1;
+	gvl.AO1_wfiFilterIn := fbValves[5].AO1;
+	
+//-----------------------PUMP Control ----------------------//	
+	IF fbPumpActive THEN
+	// 	outputAO3 := IO.AO3 := 5;
+		GVL.DO_wfiPump := fbPumpActive;
+		GVL.AO_wfiPump := fbPumpSpeed;
+	ELSE
+		GVL.DO_wfiPump := fbPumpActive;
+		GVL.AO_wfiPump := 0;
+	END_IF	
+//---------------------------------------------------------//	
+END_IF
+
+
+
+
+// IF meOPprocessState THEN
+//     IF meValvePositionReady THEN
+//         targetState := 1;
+//         targetOpenClose := TRUE;
+//     ELSE
+//         targetState := 0;
+//         targetOpenClose := FALSE;
+//     END_IF
+//     
+//     FOR i := 1 TO numValvesToPosition DO		// change this for the number of valves.
+//         FOR j := 1 TO GVL.valveCount DO
+//             IF meValves[j].name = valveNames[i] THEN
+//                 meValves[j].state := targetState;
+//                 meValves[j].hOpenClose := targetOpenClose;
+//                 EXIT;
+//             END_IF
+//         END_FOR
+//     END_FOR;
+//     ValveCtrl(fbValves := meValves);
+//     gvl.gvAnOut1_dilutionSV := meValves[1].AO1;
+//     gvl.gvAnOut1_wfiSV := meValves[2].AO1;
+//     gvl.gvAnOut1_formDrain := meValves[3].AO1;
+//     gvl.gvAnOut1_wfiBypassIn := meValves[4].AO1;
+// 	
+// 	
+// 	
+// 	
+// END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
