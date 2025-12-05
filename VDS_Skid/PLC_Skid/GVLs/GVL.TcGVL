@@ -1,14 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
   <GVL Name="GVL" Id="{ae3bfd4d-cad6-090e-2b29-8bdb174a4977}">
-    <Declaration><![CDATA[{attribute 'qualified_only'}
-VAR_GLOBAL CONSTANT
-	valveCount : INT := 5;
-	sValveNames : ARRAY[1..valveCount] OF STRING[30] := ['Dilution Selector', 
-														'WFI Selector', 
-														'Formation Drain', 
-														'WFI Filter Bypass Inlet',
-														'WFI Filter In'];	
+    <Declaration><![CDATA[VAR_GLOBAL CONSTANT
+	valveCount : INT := 10;
+	sValveNames : ARRAY[1..valveCount] OF WSTRING := 	["Dilution Selector", 
+														"WFI Selector", 
+														"Formation Drain", 
+														"WFI Filter Bypass Inlet",
+														"WFI Filter Inlet",
+														"WFI Filter Outlet",
+														"WFI Filter Bypass Outlet",
+														"Dilution Diverter",
+														"Formation Manifold",
+														"Suspension Manifold"];	
 END_VAR
 
 VAR_GLOBAL
@@ -40,26 +44,61 @@ VAR_GLOBAL
     DO1_wfiSV AT %Q* : BOOL;     		// Digital Output 1 Valve Initialization
     AO1_wfiSV AT %Q* : REAL;      		// Analog Output 1 Valve Position Control Variable (0-10V)
 
-	// IOs Formation Drain Valve (SV) 
+	// IOs Formation Drain Valve 
     DI1_formDrain AT %I* : BOOL;      	// Digital Input 1 Closed Feedback
     DI2_formDrain AT %I* : BOOL;      	// Digital Input 2 Open Feedback
     AI1_formDrain AT %I* : REAL;       	// Analog Input 1 Valve Position Feedback
     DO1_formDrain AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
     AO1_formDrain AT %Q* : REAL;      	// Analog Output 1 Valve Position Control Variable (0-10V)
 	
-	// IOs Formation Selector Valve (SV)
+	// IOs WFI Bypass Inlet Valve
     DI1_wfiBypassIn AT %I* : BOOL;      // Digital Input 1 Closed Feedback
     DI2_wfiBypassIn AT %I* : BOOL;      // Digital Input 2 Open Feedback
     AI1_wfiBypassIn AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
     DO1_wfiBypassIn AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
     AO1_wfiBypassIn AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
 	
-		// IOs Formation Selector Valve (SV)
+		// IOs WFI Filter Inlet Valve
     DI1_wfiFilterIn AT %I* : BOOL;      // Digital Input 1 Closed Feedback
     DI2_wfiFilterIn AT %I* : BOOL;      // Digital Input 2 Open Feedback
     AI1_wfiFilterIn AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
     DO1_wfiFilterIn AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
     AO1_wfiFilterIn AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
+	
+		// IOs WFI Filter Outlet Valve
+    DI1_wfiFilterOut AT %I* : BOOL;      // Digital Input 1 Closed Feedback
+    DI2_wfiFilterOut AT %I* : BOOL;      // Digital Input 2 Open Feedback
+    AI1_wfiFilterOut AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
+    DO1_wfiFilterOut AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
+    AO1_wfiFilterOut AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
+	
+		// IOs WFI Bypass Outlet Valve
+    DI1_wfiBypassOut AT %I* : BOOL;      // Digital Input 1 Closed Feedback
+    DI2_wfiBypassOut AT %I* : BOOL;      // Digital Input 2 Open Feedback
+    AI1_wfiBypassOut AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
+    DO1_wfiBypassOut AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
+    AO1_wfiBypassOut AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
+	
+		// IOs Dilution Diverter Valve
+    DI1_dilutionDiV AT %I* : BOOL;      // Digital Input 1 Closed Feedback
+    DI2_dilutionDiV AT %I* : BOOL;      // Digital Input 2 Open Feedback
+    AI1_dilutionDiV AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
+    DO1_dilutionDiV AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
+    AO1_dilutionDiV AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
+	
+		// IOs Formation Manifold Valve
+    DI1_FormManifold AT %I* : BOOL;      // Digital Input 1 Closed Feedback
+    DI2_FormManifold AT %I* : BOOL;      // Digital Input 2 Open Feedback
+    AI1_FormManifold AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
+    DO1_FormManifold AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
+    AO1_FormManifold AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
+	
+		// IOs Formation Manifold Valve
+    DI1_SuspManifold AT %I* : BOOL;      // Digital Input 1 Closed Feedback
+    DI2_SuspManifold AT %I* : BOOL;      // Digital Input 2 Open Feedback
+    AI1_SuspManifold AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
+    DO1_SuspManifold AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
+    AO1_SuspManifold AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
 //-------------------------------------------------------------------------------------------------//
 END_VAR]]></Declaration>
   </GVL>

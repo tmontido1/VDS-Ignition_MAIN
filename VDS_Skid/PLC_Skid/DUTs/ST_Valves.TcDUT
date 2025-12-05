@@ -3,7 +3,7 @@
   <DUT Name="ST_Valves" Id="{ba1f9c32-7c7b-04ce-1267-5524e5c96710}">
     <Declaration><![CDATA[TYPE ST_Valves :
 STRUCT
-    Name : STRING[20]; // Descriptive name (e.g., 'ValveA', 'InletValve1')
+    Name : WSTRING(80); // Descriptive name (e.g., 'ValveA', 'InletValve1')
     DI1 : BOOL; // Valve open feedback
     DI2 : BOOL; // Valve closed feedback
     DO1 : BOOL; // Valve Initialization Signal

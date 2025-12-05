@@ -3,7 +3,7 @@
   <POU Name="FB_SetValvesClose" Id="{8d4d32fa-bcb8-0da0-3ed8-d40901c8979c}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_SetValvesClose
 VAR_INPUT
-    fbValveNames : ARRAY[1..GVL.valveCount]OF STRING;
+    fbValveNames : ARRAY[1..GVL.valveCount]OF WSTRING;
     fbNumValvesToPosition : INT;
 END_VAR
 

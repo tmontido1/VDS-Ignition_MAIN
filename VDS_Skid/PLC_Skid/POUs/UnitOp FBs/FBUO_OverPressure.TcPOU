@@ -17,8 +17,17 @@ END_VAR
 VAR
     i : INT;
     j : INT;
-    valveNames : ARRAY[1..GVL.valveCount] OF STRING := ['WFI Filter In'];
-	numValvesToPosition : INT := 2;
+    valveNames : ARRAY[1..GVL.valveCount] OF WSTRING(80) := ["Dilution Selector", 
+														"WFI Selector", 
+														"Formation Drain", 
+														"WFI Filter Bypass Inlet",
+														"WFI Filter Inlet",
+														"WFI Filter Outlet",
+														"WFI Filter Bypass Outlet",
+														"Dilution Diverter",
+														"Formation Manifold",
+														"Suspension Manifold"];
+	numValvesToPosition : INT := 10;
     targetState : INT;
     targetOpenClose : BOOL;
 	fbSetValvesOpen : FB_SetValvesOpen;
@@ -46,7 +55,11 @@ END_VAR
     gvl.AO1_formDrain := fbValves[3].AO1;
     gvl.AO1_wfiBypassIn := fbValves[4].AO1;
 	gvl.AO1_wfiFilterIn := fbValves[5].AO1;
-	
+	gvl.AO1_wfiFilterOut := fbValves[6].AO1;
+	gvl.AO1_wfiBypassOut := fbValves[7].AO1;
+	gvl.AO1_dilutionDiV := fbValves[8].AO1;
+	gvl.AO1_FormManifold := fbValves[9].AO1;
+	gvl.AO1_SuspManifold := fbValves[10].AO1;
 //-----------------------PUMP Control ----------------------//	
 	IF fbPumpActive THEN
 	// 	outputAO3 := IO.AO3 := 5;

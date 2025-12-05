@@ -36,6 +36,26 @@ END_VAR
 	fbValves[5].DI1 := gvl.DI1_wfiFilterIn;
 	fbValves[5].AI1 := gvl.AI1_wfiFilterIn;
 	fbValves[5].DI2 := gvl.DI2_wfiFilterIn;
+	
+	fbValves[6].DI1 := gvl.DI1_wfiFilterOut;
+	fbValves[6].AI1 := gvl.AI1_wfiFilterOut;
+	fbValves[6].DI2 := gvl.DI2_wfiFilterOut;
+	
+	fbValves[7].DI1 := gvl.DI1_wfiBypassOut;
+	fbValves[7].AI1 := gvl.AI1_wfiBypassOut;
+	fbValves[7].DI2 := gvl.DI2_wfiBypassOut;
+	
+	fbValves[8].DI1 := gvl.DI1_dilutionDiV;
+	fbValves[8].AI1 := gvl.AI1_dilutionDiV;
+	fbValves[8].DI2 := gvl.DI2_dilutionDiV;
+	
+	fbValves[9].DI1 := gvl.DI1_FormManifold;
+	fbValves[9].AI1 := gvl.AI1_FormManifold;
+	fbValves[9].DI2 := gvl.DI2_FormManifold;
+	
+	fbValves[10].DI1 := gvl.DI1_SuspManifold;
+	fbValves[10].AI1 := gvl.AI1_SuspManifold;
+	fbValves[10].DI2 := gvl.DI2_SuspManifold;
 END_IF]]></ST>
     </Implementation>
   </POU>
