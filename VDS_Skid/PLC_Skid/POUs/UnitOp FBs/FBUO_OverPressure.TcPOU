@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
-  <POU Name="FBUO_OverPressure" Id="{c0ef6840-d220-046d-0544-b54879ef3bc7}" SpecialFunc="None">
+  <POU Name="FBUO_OverPressure" Id="{d0d6383a-d8b4-0693-144b-0eb7d3fc8ac4}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FBUO_OverPressure
 VAR_INPUT
     fbOPprocessState 		: BOOL;
@@ -15,39 +15,26 @@ VAR_OUTPUT
 	
 END_VAR
 VAR
-    i : INT;
-    j : INT;
-    valveNames : ARRAY[1..GVL.valveCount] OF WSTRING(80) := ["Dilution Selector", 
-														"WFI Selector", 
-														"Formation Drain", 
-														"WFI Filter Bypass Inlet",
-														"WFI Filter Inlet",
-														"WFI Filter Outlet",
-														"WFI Filter Bypass Outlet",
-														"Dilution Diverter",
-														"Formation Manifold",
-														"Suspension Manifold"];
-	numValvesToPosition : INT := 10;
+    valveIndexOpen : ARRAY[1..GVL.valveCount] OF INT := [1,2,3,4,5,6,7,8,9,10];
+	numValvesToOpen : INT := 10;
+	valveIndexClose : ARRAY[1..GVL.valveCount] OF INT := [1,3,2];
+	numValvesToClose : INT := 10;
     targetState : INT;
     targetOpenClose : BOOL;
-	fbSetValvesOpen : FB_SetValvesOpen;
-	fbSetValvesClose : FB_SetValvesClose;
+	fbValvePos : FB_ValvePOS;
 	valveCtrl : FB_valveCTRL;
+	valveIndex: INT;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[IF fbOPprocessState THEN
-    IF fbValvePositionReady THEN
-        fbSetValvesOpen(
-            fbValveNames := valveNames,
-            fbNumValvesToPosition := numValvesToPosition,
-            fbValves := fbValves);
-    ELSE
-      	fbSetValvesClose(
-            fbValveNames := valveNames,
-            fbNumValvesToPosition := numValvesToPosition,
-            fbValves := fbValves);
-    END_IF
+	
+	fbValvePos(fbValveIndexOpen := valveIndexOpen,
+            fbNumValvesToOpen := numValvesToOpen,
+			fbValveIndexClose := valveIndexClose,
+            fbNumValvesToClose := numValvesToClose,
+            fbValves := fbValves,
+			fbProcessValves2Open := fbValvePositionReady);
     
     ValveCtrl(fbValves := fbValves);
     gvl.AO1_dilutionSV := fbValves[1].AO1;
@@ -60,6 +47,9 @@ END_VAR
 	gvl.AO1_dilutionDiV := fbValves[8].AO1;
 	gvl.AO1_FormManifold := fbValves[9].AO1;
 	gvl.AO1_SuspManifold := fbValves[10].AO1;
+	
+	
+	
 //-----------------------PUMP Control ----------------------//	
 	IF fbPumpActive THEN
 	// 	outputAO3 := IO.AO3 := 5;
@@ -70,39 +60,7 @@ END_VAR
 		GVL.AO_wfiPump := 0;
 	END_IF	
 //---------------------------------------------------------//	
-END_IF
-
-
-
-
-// IF meOPprocessState THEN
-//     IF meValvePositionReady THEN
-//         targetState := 1;
-//         targetOpenClose := TRUE;
-//     ELSE
-//         targetState := 0;
-//         targetOpenClose := FALSE;
-//     END_IF
-//     
-//     FOR i := 1 TO numValvesToPosition DO		// change this for the number of valves.
-//         FOR j := 1 TO GVL.valveCount DO
-//             IF meValves[j].name = valveNames[i] THEN
-//                 meValves[j].state := targetState;
-//                 meValves[j].hOpenClose := targetOpenClose;
-//                 EXIT;
-//             END_IF
-//         END_FOR
-//     END_FOR;
-//     ValveCtrl(fbValves := meValves);
-//     gvl.gvAnOut1_dilutionSV := meValves[1].AO1;
-//     gvl.gvAnOut1_wfiSV := meValves[2].AO1;
-//     gvl.gvAnOut1_formDrain := meValves[3].AO1;
-//     gvl.gvAnOut1_wfiBypassIn := meValves[4].AO1;
-// 	
-// 	
-// 	
-// 	
-// END_IF]]></ST>
+END_IF]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

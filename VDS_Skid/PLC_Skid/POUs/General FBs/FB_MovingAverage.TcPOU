@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_MovingAverage" Id="{b6c4d5e6-f7a8-0234-5678-9abcdef01234}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_MovingAverage
+VAR_INPUT
+    fbInputValue : REAL;                // Current input value to be averaged
+    fbSampleSize : INT := 10;           // Number of samples in moving average (1 to 100)
+    fbReset : BOOL := FALSE;            // Reset the buffer and restart averaging
+END_VAR
+
+VAR_OUTPUT
+    fbAverageValue : REAL;              // Calculated moving average
+    fbBufferFull : BOOL;                // TRUE when buffer has fbSampleSize valid samples
+    fbValidSamples : INT;               // Current number of valid samples in buffer
+END_VAR
+
+VAR
+    buffer : ARRAY[1..100] OF REAL;     // Circular buffer for samples
+    bufferIndex : INT := 1;             // Current position in buffer (1 to fbSampleSize)
+    sum : REAL := 0.0;                  // Running sum of all samples in buffer
+    initialized : BOOL := FALSE;        // Flag for first-time initialization
+    lastSampleSize : INT := 0;          // Previous sample size for change detection
+    lastResetState : BOOL := FALSE;     // Previous reset state for edge detection
+    i : INT;                            // Loop counter
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Moving Average Function Block
+// Calculates running average using circular buffer
+// Efficient: Only updates sum by removing old value and adding new value
+
+// Handle reset request (rising edge detection)
+IF fbReset AND NOT lastResetState THEN
+    // Rising edge detected - perform reset
+    FOR i := 1 TO 100 DO
+        buffer[i] := 0.0;
+    END_FOR
+    sum := 0.0;
+    bufferIndex := 1;
+    fbValidSamples := 0;
+    fbBufferFull := FALSE;
+    initialized := FALSE;
+    lastSampleSize := 0;
+    fbAverageValue := 0.0;
+END_IF
+
+// Update edge detection
+lastResetState := fbReset;
+
+// If reset was just triggered, skip this scan
+IF NOT initialized AND fbReset THEN
+    RETURN;
+END_IF
+
+// Validate and limit sample size
+IF fbSampleSize < 1 THEN
+    fbSampleSize := 1;
+ELSIF fbSampleSize > 100 THEN
+    fbSampleSize := 100;
+END_IF
+
+// Detect sample size change and reinitialize if needed
+IF fbSampleSize <> lastSampleSize AND initialized THEN
+    // Sample size changed - reset and restart
+    FOR i := 1 TO 100 DO
+        buffer[i] := 0.0;
+    END_FOR
+    sum := 0.0;
+    bufferIndex := 1;
+    fbValidSamples := 0;
+    fbBufferFull := FALSE;
+    initialized := FALSE;
+END_IF
+
+lastSampleSize := fbSampleSize;
+
+// First-time initialization
+IF NOT initialized THEN
+    // Fill buffer with first input value for smooth startup
+    FOR i := 1 TO fbSampleSize DO
+        buffer[i] := fbInputValue;
+    END_FOR
+    sum := fbInputValue * fbSampleSize;
+    bufferIndex := 1;
+    fbValidSamples := fbSampleSize;
+    fbBufferFull := TRUE;
+    fbAverageValue := fbInputValue;
+    initialized := TRUE;
+    RETURN;
+END_IF
+
+// Update moving average using circular buffer
+// Remove old value from sum
+sum := sum - buffer[bufferIndex];
+
+// Add new value to buffer and sum
+buffer[bufferIndex] := fbInputValue;
+sum := sum + fbInputValue;
+
+// Increment buffer index (circular)
+bufferIndex := bufferIndex + 1;
+IF bufferIndex > fbSampleSize THEN
+    bufferIndex := 1;
+    fbBufferFull := TRUE;
+END_IF
+
+// Track valid samples (during initial fill)
+IF NOT fbBufferFull THEN
+    fbValidSamples := bufferIndex - 1;
+    IF fbValidSamples < 1 THEN
+        fbValidSamples := 1;
+    END_IF
+ELSE
+    fbValidSamples := fbSampleSize;
+END_IF
+
+// Calculate average
+IF fbValidSamples > 0 THEN
+    fbAverageValue := sum / fbValidSamples;
+ELSE
+    fbAverageValue := fbInputValue;
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

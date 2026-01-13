@@ -1,30 +1,216 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
-  <POU Name="FB_ValvePOS" Id="{93e5a63e-a1bf-0268-2f21-e7312fbc1143}" SpecialFunc="None">
+  <POU Name="FB_ValvePOS" Id="{93e5a63e-a1bf-0268-2f21-e7312fbc1144}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ValvePOS
 VAR_INPUT
-    fbValveIndex : ARRAY[1..GVL.valveCount]OF INT;
-    fbNumValvesToPosition : INT;
+    fbValveIndexOpen : ARRAY[1..GVL.valveCount] OF INT;  // Array of valve IDs for opening sequence
+    fbNumValvesToOpen : INT;                              // How many valves to open
+    fbValveIndexClose : ARRAY[1..GVL.valveCount] OF INT; // Array of valve IDs for closing sequence
+    fbNumValvesToClose : INT;                             // How many valves to close
+    fbProcessValves2Open : BOOL;                          // TRUE=Open sequence, FALSE=Close sequence
 END_VAR
 
 VAR_IN_OUT
-    fbValves : ARRAY[1..GVL.valveCount] OF ST_Valves;
+    fbValves : ARRAY[1..GVL.valveCount] OF ST_Valves;    // Valve array
 END_VAR
+
+VAR_OUTPUT
+    fbSequenceComplete : BOOL;                            // TRUE when all valves positioned
+    fbSequenceActive : BOOL;                              // TRUE while sequencing in progress
+    fbCurrentValveNum : INT;                              // Current valve being positioned (1 to fbNumValvesToPosition)
+    fbFaultTimeout : BOOL;                                // TRUE if a valve failed to move
+END_VAR
+
 VAR
-    i : INT;
-    j : INT;
-END_VAR]]></Declaration>
+    // State machine
+    sequenceState : INT := 0;                             // 0=Idle, 1=Command, 2=WaitEdge, 3=Delay, 4=Advance
+    currentValveIndex : INT := 1;                         // Which valve in sequence array (1 to fbNumValvesToOpen/Close)
+    currentValveArrayPos : INT := 0;                      // Position in fbValves array where valve was found
+    isOpeningMode : BOOL := FALSE;                        // TRUE=Opening sequence, FALSE=Closing sequence
+    lastProcessCommand : BOOL := FALSE;                   // Previous state of fbProcessValves2Open for edge detection
+
+    // Edge detection for DI2 (closed feedback)
+    lastDI2State : BOOL := FALSE;                         // Previous scan DI2 value
+    valveStartedMoving : BOOL := FALSE;                   // Flag: edge detected
+
+    // Timers
+    delayTimer : TON;                                     // 0.5s delay between valve movements
+    timeoutTimer : TON;                                   // Timeout if valve doesn't start moving
+
+    // Constants
+    VALVE_MOVE_DELAY : TIME := T#1500MS;                  // Delay between commanding valves
+    VALVE_MOVE_TIMEOUT : TIME := T#5S;                    // Max time to wait for valve to start moving
+
+    // Internal
+    i : INT;                                              // Loop counter
+    valveFound : BOOL;                                    // Flag for valve lookup
+    numValvesInSequence : INT;                            // Total valves in current sequence
+END_VAR
+]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
-FOR i := 1 TO fbNumValvesToPosition DO
-    FOR j := 1 TO gvl.valveCount DO
-        IF fbValves[j].ID = fbValveIndex[i] THEN
-            fbValves[j].state := 1;
-            fbValves[j].hOpenClose := TRUE;
-            EXIT;
+      <ST><![CDATA[// State Machine for Sequential Valve Positioning with Timing Delays
+// Supports separate opening and closing sequences with different orders
+// Prevents commanding next valve until current valve starts moving + delay
+
+CASE sequenceState OF
+
+    //---------- State 0: Idle/Ready ----------//
+    0:
+        fbSequenceActive := FALSE;
+        fbSequenceComplete := FALSE;
+        fbFaultTimeout := FALSE;
+
+        // Reset timers
+        delayTimer(IN := FALSE);
+        timeoutTimer(IN := FALSE);
+
+        // Detect rising edge on fbProcessValves2Open (start opening sequence)
+        IF fbProcessValves2Open AND NOT lastProcessCommand THEN
+            // Start opening sequence
+            isOpeningMode := TRUE;
+            currentValveIndex := 1;
+            numValvesInSequence := fbNumValvesToOpen;
+            fbSequenceActive := TRUE;
+            fbSequenceComplete := FALSE;
+            sequenceState := 1;  // Go to command first valve
         END_IF
-    END_FOR
-END_FOR;]]></ST>
+
+        // Detect falling edge on fbProcessValves2Open (start closing sequence)
+        IF NOT fbProcessValves2Open AND lastProcessCommand THEN
+            // Start closing sequence
+            isOpeningMode := FALSE;
+            currentValveIndex := 1;
+            numValvesInSequence := fbNumValvesToClose;
+            fbSequenceActive := TRUE;
+            fbSequenceComplete := FALSE;
+            sequenceState := 1;  // Go to command first valve
+        END_IF
+
+        // Update edge detection variable
+        lastProcessCommand := fbProcessValves2Open;
+
+
+    //---------- State 1: Command Current Valve ----------//
+    1:
+        fbCurrentValveNum := currentValveIndex;
+
+        // Check if we've positioned all requested valves
+        IF currentValveIndex > numValvesInSequence THEN
+            fbSequenceComplete := TRUE;
+            sequenceState := 0;  // Return to idle
+        ELSE
+            // Find the valve in fbValves array
+            // Use appropriate index array based on mode
+            valveFound := FALSE;
+            FOR i := 1 TO GVL.valveCount DO
+                // Get the valve ID from the appropriate sequence array
+                IF isOpeningMode THEN
+                    IF fbValves[i].ID = fbValveIndexOpen[currentValveIndex] THEN
+                        // Found the valve - command it to open
+                        currentValveArrayPos := i;
+                        fbValves[i].state := 1;
+                        fbValves[i].isOpen := TRUE;
+                        valveFound := TRUE;
+                    END_IF
+                ELSE
+                    IF fbValves[i].ID = fbValveIndexClose[currentValveIndex] THEN
+                        // Found the valve - command it to close
+                        currentValveArrayPos := i;
+                        fbValves[i].state := 1;
+                        fbValves[i].isOpen := FALSE;
+                        valveFound := TRUE;
+                    END_IF
+                END_IF
+
+                IF valveFound THEN
+                    // Capture current DI2 state for edge detection
+                    lastDI2State := fbValves[i].DI2;
+                    valveStartedMoving := FALSE;
+
+                    // Reset timeout timer
+                    timeoutTimer(IN := FALSE);
+
+                    sequenceState := 2;  // Go wait for valve to start moving
+                    EXIT;
+                END_IF
+            END_FOR
+
+            // If valve not found in array, skip to next
+            IF NOT valveFound THEN
+                currentValveIndex := currentValveIndex + 1;
+                // Stay in state 1 to try next valve
+            END_IF
+        END_IF
+
+
+    //---------- State 2: Wait for Valve to Start Moving (Edge Detection) ----------//
+    2:
+        // DI2 is TRUE when valve is closed, FALSE when opening/open
+        // Opening: Detect falling edge (TRUE -> FALSE) = valve leaving closed position
+        // Closing: Detect rising edge (FALSE -> TRUE) = valve arriving at closed position
+
+        IF isOpeningMode THEN
+            // Opening mode: Wait for DI2 falling edge
+            IF lastDI2State AND NOT fbValves[currentValveArrayPos].DI2 THEN
+                // Falling edge detected - valve started opening
+                valveStartedMoving := TRUE;
+                timeoutTimer(IN := FALSE);  // Reset timeout
+                delayTimer(IN := FALSE);    // Reset delay timer
+                sequenceState := 3;         // Go to delay state
+            END_IF
+        ELSE
+            // Closing mode: Wait for DI2 rising edge
+            IF NOT lastDI2State AND fbValves[currentValveArrayPos].DI2 THEN
+                // Rising edge detected - valve started closing (arrived at closed)
+                valveStartedMoving := TRUE;
+                timeoutTimer(IN := FALSE);  // Reset timeout
+                delayTimer(IN := FALSE);    // Reset delay timer
+                sequenceState := 3;         // Go to delay state
+            END_IF
+        END_IF
+
+        // Update for next scan edge detection
+        lastDI2State := fbValves[currentValveArrayPos].DI2;
+
+        // Run timeout timer
+        timeoutTimer(IN := TRUE, PT := VALVE_MOVE_TIMEOUT);
+
+        // Check for timeout
+        IF timeoutTimer.Q THEN
+            // Valve didn't start moving within timeout period
+            fbFaultTimeout := TRUE;
+            timeoutTimer(IN := FALSE);
+
+            // Decision: Skip to next valve or halt sequence?
+            // Currently: skip to next valve
+            currentValveIndex := currentValveIndex + 1;
+            sequenceState := 1;
+        END_IF
+
+
+    //---------- State 3: Delay Timer after movement started ----------//
+    3:
+        // Run delay timer
+        delayTimer(IN := TRUE, PT := VALVE_MOVE_DELAY);
+
+        IF delayTimer.Q THEN
+            // Delay complete
+            delayTimer(IN := FALSE);  // Reset timer
+            sequenceState := 4;       // Advance to next valve
+        END_IF
+
+
+    //---------- State 4: Advance to Next Valve ----------//
+    4:
+        currentValveIndex := currentValveIndex + 1;
+        sequenceState := 1;  // Go back to command state for next valve
+
+
+    //---------- Default: Safety ----------//
+    ELSE
+        sequenceState := 0;  // Return to idle if invalid state
+
+END_CASE]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

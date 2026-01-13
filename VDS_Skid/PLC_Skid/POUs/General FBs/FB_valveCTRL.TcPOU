@@ -24,7 +24,7 @@ FOR i := 1 TO gvl.valveCount DO
     //IF fbValves[i].Name = fbValveNames[i] THEN
         CASE fbValves[i].State OF
             1: // Open/Close mode
-                IF fbValves[i].hOpenClose THEN
+                IF fbValves[i].isOpen THEN
                     fbValves[i].AO1 := 10.0; // Open
                 ELSE
                     fbValves[i].AO1 := 0.0; // Close

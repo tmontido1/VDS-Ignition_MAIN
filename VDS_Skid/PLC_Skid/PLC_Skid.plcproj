@@ -33,22 +33,19 @@
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\General FBs\FB_MovingAverage.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\General FBs\FB_PulseValve.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\General FBs\FB_ValvePOSClose.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\General FBs\FB_SetValvesOpen.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\General FBs\FB_SetValvesClose.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\General FBs\FB_valveCTRL.TcPOU">
+    <Compile Include="POUs\General FBs\FB_ScaleAnalog.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\General FBs\FB_ValvePOS.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\General FBs\FB_valveCTRL.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
@@ -58,9 +55,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\UnitOp FBs\FBUO_OverPressure.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\UnitOp FBs\FBUO_OverPressure_1.TcPOU">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

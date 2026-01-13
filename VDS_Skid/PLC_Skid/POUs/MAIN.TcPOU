@@ -18,15 +18,17 @@ VAR
 
 
 //----------------------------INIT Function Blocks----------------------------------//
-	valveCtrl : FB_valveCTRL; // Function block instance
-	varPulse : FB_PulseValve;   // Instance of the function block
-	unitOp_OverPressure : FBUO_OverPressure_1;
 	systemCheck_Valves : FB_CheckValveInputs;
+	valveCtrl : FB_valveCTRL; // Function block instance
+	
+	varPulse : FB_PulseValve;   // Instance of the function block
+	unitOp_OverPressure : FBUO_OverPressure;
+	
 //----------------------------------------------------------------------------------//	
 	
 // Bool	
 	outputDO1 : BOOL;           // Local output variable
-    tPulseTime : TIME := T#1500MS; // Pulse duration
+    tPulseTime : TIME := T#1000MS; // Pulse duration
 	outputDO3 : BOOL := FALSE;
 	outputAO3 : REAL;
 	outputA03 : REAL := 2;
@@ -51,7 +53,7 @@ IF NOT Initialized THEN
         stValves[i].State := 0; // Initialize to Closed
         stValves[i].AO1 := 0.0; // Closed position
         stValves[i].Status := 0; // No faults
-        stValves[i].hOpenClose := FALSE; // Initialize to closed
+        stValves[i].isOpen := FALSE; // Initialize to closed
     END_FOR
     Initialized := TRUE;
 END_IF

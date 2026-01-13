@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_ScaleAnalog" Id="{a5b3c4d5-e6f7-0123-4567-89abcdef0123}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ScaleAnalog
+VAR_INPUT
+    fbRawValue : REAL;              // Raw analog input value (e.g., 4.0 to 20.0 mA)
+    fbInputMin : REAL;              // Minimum raw input value (e.g., 4.0 for 4mA)
+    fbInputMax : REAL;              // Maximum raw input value (e.g., 20.0 for 20mA)
+    fbOutputMin : REAL;             // Minimum engineering unit value (e.g., 0.0 PSI)
+    fbOutputMax : REAL;             // Maximum engineering unit value (e.g., 30.0 PSI)
+    fbEnableLimit : BOOL := TRUE;   // Enable output limiting to min/max range
+END_VAR
+
+VAR_OUTPUT
+    fbScaledValue : REAL;           // Scaled output in engineering units
+    fbRangeError : BOOL;            // TRUE if input is outside expected range
+    fbLimitActive : BOOL;           // TRUE if output is being limited
+END_VAR
+
+VAR
+    inputRange : REAL;              // Calculated input range
+    outputRange : REAL;             // Calculated output range
+    normalizedValue : REAL;         // Normalized input (0.0 to 1.0)
+    rawOutput : REAL;               // Output before limiting
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Generic Linear Scaling Function Block
+// Converts raw analog input (e.g., 4-20mA) to engineering units
+// Formula: Output = ((Input - InputMin) / (InputMax - InputMin)) * (OutputMax - OutputMin) + OutputMin
+
+// Reset outputs
+fbRangeError := FALSE;
+fbLimitActive := FALSE;
+
+// Calculate input and output ranges
+inputRange := fbInputMax - fbInputMin;
+outputRange := fbOutputMax - fbOutputMin;
+
+// Check for invalid input range (divide by zero protection)
+IF ABS(inputRange) < 0.001 THEN
+    // Invalid range - return minimum output and set error
+    fbScaledValue := fbOutputMin;
+    fbRangeError := TRUE;
+    RETURN;
+END_IF
+
+// Check if input is outside expected range
+IF fbRawValue < fbInputMin OR fbRawValue > fbInputMax THEN
+    fbRangeError := TRUE;
+END_IF
+
+// Normalize input to 0.0 to 1.0 range
+normalizedValue := (fbRawValue - fbInputMin) / inputRange;
+
+// Scale to output range
+rawOutput := (normalizedValue * outputRange) + fbOutputMin;
+
+// Apply limits if enabled
+IF fbEnableLimit THEN
+    IF rawOutput < fbOutputMin THEN
+        fbScaledValue := fbOutputMin;
+        fbLimitActive := TRUE;
+    ELSIF rawOutput > fbOutputMax THEN
+        fbScaledValue := fbOutputMax;
+        fbLimitActive := TRUE;
+    ELSE
+        fbScaledValue := rawOutput;
+    END_IF
+ELSE
+    // No limiting - allow values outside range
+    fbScaledValue := rawOutput;
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>
