@@ -4,6 +4,7 @@
     <Declaration><![CDATA[TYPE ST_Valves :
 STRUCT
     Name : WSTRING(80); // Descriptive name (e.g., 'ValveA', 'InletValve1')
+	ID : INT;	// Valve Index
     DI1 : BOOL; // Valve open feedback
     DI2 : BOOL; // Valve closed feedback
     DO1 : BOOL; // Valve Initialization Signal

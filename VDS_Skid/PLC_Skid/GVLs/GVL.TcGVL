@@ -13,6 +13,18 @@
 														"Dilution Diverter",
 														"Formation Manifold",
 														"Suspension Manifold"];	
+														
+stValveID : ARRAY[1..valveCount] OF INT := 	[1, 	// Dilution Selector
+											 2, 		// WFI Selector, 
+											 3, 		// Formation Drain, 
+											 4, 		// WFI Filter Bypass Inlet,
+											 5, 		// WFI Filter Inlet,
+											 6, 		// WFI Filter Outlet,
+											 7, 		// WFI Filter Bypass Outlet,
+											 8, 		// Dilution Diverter,
+											 9, 		// Formation Manifold,
+											 10 	// Suspension Manifold]
+											];	
 END_VAR
 
 VAR_GLOBAL

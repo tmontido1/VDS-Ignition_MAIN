@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
-  <POU Name="FBUO_OverPressure" Id="{c0ef6840-d220-046d-0544-b54879ef3bc7}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FBUO_OverPressure
+  <POU Name="FBUO_OverPressure_1" Id="{d0d6383a-d8b4-0693-144b-0eb7d3fc8ac4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FBUO_OverPressure_1
 VAR_INPUT
     fbOPprocessState 		: BOOL;
     fbValvePositionReady 	: BOOL;
@@ -15,23 +15,12 @@ VAR_OUTPUT
 	
 END_VAR
 VAR
-    i : INT;
-    j : INT;
-    valveNames : ARRAY[1..GVL.valveCount] OF WSTRING(80) := ["Dilution Selector", 
-														"WFI Selector", 
-														"Formation Drain", 
-														"WFI Filter Bypass Inlet",
-														"WFI Filter Inlet",
-														"WFI Filter Outlet",
-														"WFI Filter Bypass Outlet",
-														"Dilution Diverter",
-														"Formation Manifold",
-														"Suspension Manifold"];
+    valveIndex : ARRAY[1..GVL.valveCount] OF INT := [1,2,3];
 	numValvesToPosition : INT := 10;
     targetState : INT;
     targetOpenClose : BOOL;
-	fbSetValvesOpen : FB_SetValvesOpen;
-	fbSetValvesClose : FB_SetValvesClose;
+	fbSetValvesOpen : FB_ValvePos;
+	fbSetValvesClose : FB_ValvePOSClose;
 	valveCtrl : FB_valveCTRL;
 END_VAR
 ]]></Declaration>
@@ -39,12 +28,12 @@ END_VAR
       <ST><![CDATA[IF fbOPprocessState THEN
     IF fbValvePositionReady THEN
         fbSetValvesOpen(
-            fbValveNames := valveNames,
+            fbValveIndex := valveIndex,
             fbNumValvesToPosition := numValvesToPosition,
             fbValves := fbValves);
     ELSE
       	fbSetValvesClose(
-            fbValveNames := valveNames,
+            fbValveIndex := valveIndex,
             fbNumValvesToPosition := numValvesToPosition,
             fbValves := fbValves);
     END_IF

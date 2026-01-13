@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
-  <POU Name="FB_valveControl" Id="{476bcf38-e1d4-0cba-1204-1378ddf6ec7f}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_valveControl
+  <POU Name="FB_valveCTRL" Id="{476bcf38-e1d4-0cba-1204-1378ddf6ec7f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_valveCTRL
 VAR_INPUT
     //fbValveNames : ARRAY[1..GVL.valveCount] OF STRING[20]; // Array of valve names
 END_VAR

@@ -18,9 +18,9 @@ VAR
 
 
 //----------------------------INIT Function Blocks----------------------------------//
-	valveCtrl : FB_valveControl; // Function block instance
+	valveCtrl : FB_valveCTRL; // Function block instance
 	varPulse : FB_PulseValve;   // Instance of the function block
-	unitOp_OverPressure : FBUO_OverPressure;
+	unitOp_OverPressure : FBUO_OverPressure_1;
 	systemCheck_Valves : FB_CheckValveInputs;
 //----------------------------------------------------------------------------------//	
 	
@@ -47,6 +47,7 @@ END_VAR
 IF NOT Initialized THEN
     FOR i := 1 TO gvl.valveCount DO
         stValves[i].Name := GVL.sValveNames[i]; // Assign valve names
+		stValves[i].ID := GVL.stValveID[i];
         stValves[i].State := 0; // Initialize to Closed
         stValves[i].AO1 := 0.0; // Closed position
         stValves[i].Status := 0; // No faults
@@ -72,6 +73,21 @@ unitOp_OverPressure(
 //--------------------------------------------------------------------------------------------//
 
 CycleCount := CycleCount + 1;
+
+
+
+
+
+
+//////////////////////////////////////////
+//////////////////////////////////////////
+//////////////////////////////////////////
+
+
+
+
+
+
 
 
 // Correct function block call with inputs
