@@ -30,12 +30,13 @@ VAR
 	outputDO1 : BOOL;           // Local output variable
     tPulseTime : TIME := T#1000MS; // Pulse duration
 	outputDO3 : BOOL := FALSE;
-	outputAO3 : REAL;
-	outputA03 : REAL := 2;
+	outputAO3 : REAL := 3;
+	inputPressure : REAL;
+	inputWFI_FlowRate : REAL;
 	
 //---------------------INIT Control Variables---------------------------------------//
 	hOP_ProcessState			: BOOL	:= FALSE;	// Overpressure process step active
-	hOP_ValvesPositionSet	 	: BOOL 	:= FALSE;	// Position Valves
+	hOP_ValvesPositionSet	 	: BOOL 	:= TRUE;	// Position Valves
 	hOP_PumpActive				: BOOL	:= FALSE;	// Turn on Pump
 	hOP_PumpSpeed				: REAL 	:= 0;		// Pump Speed
 //----------------------------------------------------------------------------------//
@@ -77,9 +78,8 @@ unitOp_OverPressure(
 CycleCount := CycleCount + 1;
 
 
-
-
-
+inputPressure := gvl.AI_wfiPressureSensor;
+inputWFI_FlowRate := DINT_TO_REAL(gvl.AI_wfiFlowMeter) / 7812500.0 * 20 + 4;
 
 //////////////////////////////////////////
 //////////////////////////////////////////
@@ -102,7 +102,7 @@ gvl.DO1_dilutionSV := outputDO1;
 gvl.DO_wfiPump := outputDO3;
 IF hOP_PumpActive THEN
 // 	outputAO3 := IO.AO3 := 5;
-	gvl.AO_wfiPump := outputA03;
+	gvl.AO_wfiPump := outputAO3;
 ELSE
 	gvl.AO_wfiPump := 0;
 END_IF

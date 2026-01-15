@@ -15,9 +15,9 @@ VAR_OUTPUT
 	
 END_VAR
 VAR
-    valveIndexOpen : ARRAY[1..GVL.valveCount] OF INT := [1,2,3,4,5,6,7,8,9,10];
+    valveIndexOpen : ARRAY[1..GVL.valveCount] OF INT := [2,5];
 	numValvesToOpen : INT := 10;
-	valveIndexClose : ARRAY[1..GVL.valveCount] OF INT := [1,3,2];
+	valveIndexClose : ARRAY[1..GVL.valveCount] OF INT := [2,5];
 	numValvesToClose : INT := 10;
     targetState : INT;
     targetOpenClose : BOOL;
@@ -51,14 +51,14 @@ END_VAR
 	
 	
 //-----------------------PUMP Control ----------------------//	
-	IF fbPumpActive THEN
-	// 	outputAO3 := IO.AO3 := 5;
-		GVL.DO_wfiPump := fbPumpActive;
-		GVL.AO_wfiPump := fbPumpSpeed;
-	ELSE
-		GVL.DO_wfiPump := fbPumpActive;
-		GVL.AO_wfiPump := 0;
-	END_IF	
+// 	IF fbPumpActive THEN
+// 	outputAO3 := IO.AO3 := 5;
+// 		GVL.DO_wfiPump := fbPumpActive;
+// 		GVL.AO_wfiPump := fbPumpSpeed;
+// 	ELSE
+// 		GVL.DO_wfiPump := fbPumpActive;
+// 		GVL.AO_wfiPump := 0;
+// 	END_IF	
 //---------------------------------------------------------//	
 END_IF]]></ST>
     </Implementation>

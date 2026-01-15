@@ -40,6 +40,12 @@ VAR_GLOBAL
 	AO_wfiPump AT %Q* : REAL;			// Analog Ouput for pump speed control
 //-------------------------------------------------------------------------------------------------//
 
+	AI_wfiPressureSensor AT %I* : REAL;			// Analog Ouput for pump speed control
+
+
+//---------------------------------- CORRIOLIS METER MAPPING -------------------------------------------------//	
+	AI_wfiFlowMeter AT %I* : DINT;			// Analog Ouput for pump speed control
+//-------------------------------------------------------------------------------------------------//
 
 //---------------------------------- VALVE MAPPING ------------------------------------------------//
 	// IOs Dilution Selector Valve (SV)

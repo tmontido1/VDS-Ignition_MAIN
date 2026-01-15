@@ -20,6 +20,9 @@
 	</Instance>
 	<Mappings>
 		<OwnerA>
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 4 (EK1200)^Term 20 (ELM3104-0020)">
+				<Link VarA="PlcTask Inputs^GVL.AI_wfiFlowMeter" VarB="PAI Samples 1 Channel 1^Samples[0]"/>
+			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 13 (IOLITE GATE LATCH v2.00 Bus2)^Term 14 (IOLITEr 32xDI Bus2)">
 				<Link VarA="PlcTask Inputs^GVL.DI1_FormManifold" VarB="AI TxPDO-Map^DI21" Size="1"/>
 				<Link VarA="PlcTask Inputs^GVL.DI1_SuspManifold" VarB="AI TxPDO-Map^DI17" Size="1"/>
@@ -65,6 +68,13 @@
 				<Link VarA="PlcTask Outputs^GVL.AO1_wfiFilterIn" VarB="AO RxPDO-Map^AO 5"/>
 				<Link VarA="PlcTask Outputs^GVL.AO1_wfiFilterOut" VarB="AO RxPDO-Map^AO 6"/>
 				<Link VarA="PlcTask Outputs^GVL.AO1_wfiSV" VarB="AO RxPDO-Map^AO 2"/>
+				<Link VarA="PlcTask Outputs^GVL.AO_wfiPump" VarB="AO RxPDO-Map^AO 3"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 4 (IOLITE GATE LATCH v2.00 Bus2)^Term 12 (IOLITEr 32xDO Bus2)">
+				<Link VarA="PlcTask Outputs^GVL.DO_wfiPump" VarB="DO RxPDO-Map^LED 3" Size="1"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 4 (IOLITE GATE LATCH v2.00 Bus2)^Term 6 (IOLITEr 6xSTG Bus2)">
+				<Link VarA="PlcTask Inputs^GVL.AI_wfiPressureSensor" VarB="UnBuf TxPDO-Map^u1"/>
 			</OwnerB>
 		</OwnerA>
 	</Mappings>
