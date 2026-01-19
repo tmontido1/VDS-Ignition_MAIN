@@ -13,26 +13,32 @@ VAR
 
 //--------------------------------- Struct Init ------------------------------------//
 // Constant array of valve names	
-	stValves : ARRAY[1..gvl.valveCount] OF ST_Valves;
+	stValves : ARRAY[1..GVL.valveCount] OF ST_Valves;
 //----------------------------------------------------------------------------------//
 
 
 //----------------------------INIT Function Blocks----------------------------------//
 	systemCheck_Valves : FB_CheckValveInputs;
 	valveCtrl : FB_valveCTRL; // Function block instance
-	
 	varPulse : FB_PulseValve;   // Instance of the function block
 	unitOp_OverPressure : FBUO_OverPressure;
-	
+	wfi_OutletPressure : FB_ScaleAnalog;
+	wfi_MassFlowAvg10 : FB_MovingAverage;
+	wfi_MassFlowAvg30 : FB_MovingAverage;
+	wfi_MassFlowAvg100 : FB_MovingAverage;
 //----------------------------------------------------------------------------------//	
 	
-// Bool	
+//---------------------------- General Variables -----------------------------------//
 	outputDO1 : BOOL;           // Local output variable
     tPulseTime : TIME := T#1000MS; // Pulse duration
 	outputDO3 : BOOL := FALSE;
-	outputAO3 : REAL := 3;
-	inputPressure : REAL;
-	inputWFI_FlowRate : REAL;
+	outputAO3 : REAL := 1;
+	rawWFIPressure : REAL;
+	scaledWFIPressure : REAL;
+	scaledWFI_MassFlowRate : REAL;
+	avg10WFI_MassFlowRate : REAL;
+	avg30WFI_MassFlowRate : REAL;
+	avg100WFI_MassFlowRate : REAL;
 	
 //---------------------INIT Control Variables---------------------------------------//
 	hOP_ProcessState			: BOOL	:= FALSE;	// Overpressure process step active
@@ -40,7 +46,6 @@ VAR
 	hOP_PumpActive				: BOOL	:= FALSE;	// Turn on Pump
 	hOP_PumpSpeed				: REAL 	:= 0;		// Pump Speed
 //----------------------------------------------------------------------------------//
-
 END_VAR
 
 ]]></Declaration>
@@ -59,6 +64,8 @@ IF NOT Initialized THEN
     Initialized := TRUE;
 END_IF
 
+CycleCount := CycleCount + 1;
+
 //------------------------------ Check Valve Inputs Every Cycle ------------------------------//
 systemCheck_Valves(
 	fbCheckProcessState := TRUE, 
@@ -75,37 +82,58 @@ unitOp_OverPressure(
 	fbPumpSpeed				:= hOP_PumpSpeed);
 //--------------------------------------------------------------------------------------------//
 
-CycleCount := CycleCount + 1;
 
+rawWFIPressure := (IO.AI_wfiPressureSensor);
+wfi_OutletPressure(
+					fbRawValue := rawWFIPressure,
+					fbInputMin := 4.0,
+					fbInputMax := 20.0,
+					fbOutputMin := 0.0,
+					fbOutputMax := 30.0,
+					fbScaledValue => scaledWFIPressure);
+					
+// Conversion of raw input (DINT to Real)
+//Extended Range*4500 g/min-> set in emerson flowrate sensor
+scaledWFI_MassFlowRate := (DINT_TO_REAL(IO.AI_wfiFlowMeter) / 8388607.0) * 4500.0;
 
-inputPressure := gvl.AI_wfiPressureSensor;
-inputWFI_FlowRate := DINT_TO_REAL(gvl.AI_wfiFlowMeter) / 7812500.0 * 20 + 4;
+// 10-sample moving average for flow rate
+wfi_MassFlowAvg10(
+	fbInputValue := scaledWFI_MassFlowRate,
+	fbSampleSize := 10,
+	fbAverageValue => avg10WFI_MassFlowRate);
+	
+// 30-sample moving average for flow rate
+wfi_MassFlowAvg30(
+	fbInputValue := scaledWFI_MassFlowRate,
+	fbSampleSize := 30,
+	fbAverageValue => avg30WFI_MassFlowRate);
+	
+	// 10-sample moving average for flow rate
+wfi_MassFlowAvg100(
+	fbInputValue := scaledWFI_MassFlowRate,
+	fbSampleSize := 100,
+	fbAverageValue => avg100WFI_MassFlowRate);
+
+// Pump Control - TBD
+IO.DO_wfiPump := outputDO3;
+IF hOP_PumpActive THEN
+// 	outputAO3 := IO.AO3 := 5;
+	IO.AO_wfiPump := outputAO3;
+ELSE
+	IO.AO_wfiPump := 0;
+END_IF
+
 
 //////////////////////////////////////////
 //////////////////////////////////////////
 //////////////////////////////////////////
-
-
-
-
-
-
 
 
 // Correct function block call with inputs
 varPulse(Valve := outputDO1, pulseTime := tPulseTime);
 // Assign output to global I/O
-gvl.DO1_dilutionSV := outputDO1;
+IO.DO1_dilutionSV := outputDO1;
 
-
-// Pump Control - TBD
-gvl.DO_wfiPump := outputDO3;
-IF hOP_PumpActive THEN
-// 	outputAO3 := IO.AO3 := 5;
-	gvl.AO_wfiPump := outputAO3;
-ELSE
-	gvl.AO_wfiPump := 0;
-END_IF
 //-----------------------------Process Code ----------------------------------------//
 ]]></ST>
     </Implementation>

@@ -9,7 +9,7 @@ VAR_INPUT
 	fbPumpSpeed				: REAL;
 END_VAR
 VAR_IN_OUT
-    fbValves : ARRAY[1..gvl.valveCount] OF ST_Valves;
+    fbValves : ARRAY[1..GVL.valveCount] OF ST_Valves;
 END_VAR
 VAR_OUTPUT
 	
@@ -37,16 +37,16 @@ END_VAR
 			fbProcessValves2Open := fbValvePositionReady);
     
     ValveCtrl(fbValves := fbValves);
-    gvl.AO1_dilutionSV := fbValves[1].AO1;
-    gvl.AO1_wfiSV := fbValves[2].AO1;
-    gvl.AO1_formDrain := fbValves[3].AO1;
-    gvl.AO1_wfiBypassIn := fbValves[4].AO1;
-	gvl.AO1_wfiFilterIn := fbValves[5].AO1;
-	gvl.AO1_wfiFilterOut := fbValves[6].AO1;
-	gvl.AO1_wfiBypassOut := fbValves[7].AO1;
-	gvl.AO1_dilutionDiV := fbValves[8].AO1;
-	gvl.AO1_FormManifold := fbValves[9].AO1;
-	gvl.AO1_SuspManifold := fbValves[10].AO1;
+    IO.AO1_dilutionSV := fbValves[1].AO1;
+    IO.AO1_wfiSV := fbValves[2].AO1;
+    IO.AO1_formDrain := fbValves[3].AO1;
+    IO.AO1_wfiBypassIn := fbValves[4].AO1;
+	IO.AO1_wfiFilterIn := fbValves[5].AO1;
+	IO.AO1_wfiFilterOut := fbValves[6].AO1;
+	IO.AO1_wfiBypassOut := fbValves[7].AO1;
+	IO.AO1_dilutionDiV := fbValves[8].AO1;
+	IO.AO1_FormManifold := fbValves[9].AO1;
+	IO.AO1_SuspManifold := fbValves[10].AO1;
 	
 	
 	

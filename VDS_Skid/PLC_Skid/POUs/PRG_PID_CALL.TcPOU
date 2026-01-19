@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="PRG_PID_CALL" Id="{64db7495-2ded-04e8-2256-4a372158dbbf}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM PRG_PID_CALL
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
   <POU Name="FB_MovingAverage" Id="{b6c4d5e6-f7a8-0234-5678-9abcdef01234}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_MovingAverage
 VAR_INPUT
     fbInputValue : REAL;                // Current input value to be averaged
-    fbSampleSize : INT := 10;           // Number of samples in moving average (1 to 100)
+    fbSampleSize : INT :=10;           // Number of samples in moving average (1 to 100)
     fbReset : BOOL := FALSE;            // Reset the buffer and restart averaging
 END_VAR
 

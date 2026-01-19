@@ -19,8 +19,6 @@ This is a TwinCAT 3 PLC project for a VDS (Vaccine Distribution System) skid tha
 TwinCAT projects are built and deployed through the TwinCAT XAE (eXtended Automation Engineering) shell, which integrates with Visual Studio. The solution file is located at:
 - `VDS_Skid/VDS_Skid.sln`
 
-The PLC project configuration is in `VDS_Skid/PLC_Skid.xti`.
-
 **Note**: This codebase does not use traditional build commands like `make` or `npm build`. Development and deployment are managed through TwinCAT XAE IDE.
 
 ## Architecture
@@ -47,33 +45,47 @@ The MAIN program runs every PLC cycle and orchestrates all control operations:
 
 **ST_Pumps**: Pump data structure (currently minimal implementation)
 
-### Global Variables (GVL.TcGVL)
+### Global Variables
 
-**Constants**:
+**GVL.TcGVL** - Constants and configuration:
 - `valveCount`: Fixed at 10 valves
-- `sValveNames`: Array of descriptive valve names (e.g., "Dilution Selector", "WFI Filter Inlet")
+- `sValveNames`: Array of descriptive valve names (WSTRING)
 - `stValveID`: Array of valve index values (1-10) for performance optimization
 
-**I/O Mapping**: All physical I/O uses AT %I* (inputs) or AT %Q* (outputs) directives to link to EtherCAT terminals:
+**IO.TcGVL** - Hardware I/O mapping (uses `{attribute 'qualified_only'}` - must reference as `IO.varName`):
+- All physical I/O uses AT %I* (inputs) or AT %Q* (outputs) directives to link to EtherCAT terminals
 - Valve naming convention: `{DI1|DI2|AI1|DO1|AO1}_{valveName}`
-- Example: `DI1_dilutionSV`, `AO1_wfiFilterIn`
 - Pump controls: `DO_wfiPump` (on/off), `AO_wfiPump` (speed 0-10V)
+- Sensors: `AI_wfiPressureSensor` (REAL), `AI_wfiFlowMeter` (DINT)
+
+**Valve Index to I/O Variable Mapping**:
+| Index | Name | I/O Suffix |
+|-------|------|------------|
+| 1 | Dilution Selector | `_dilutionSV` |
+| 2 | WFI Selector | `_wfiSV` |
+| 3 | Formation Drain | `_formDrain` |
+| 4 | WFI Filter Bypass Inlet | `_wfiBypassIn` |
+| 5 | WFI Filter Inlet | `_wfiFilterIn` |
+| 6 | WFI Filter Outlet | `_wfiFilterOut` |
+| 7 | WFI Filter Bypass Outlet | `_wfiBypassOut` |
+| 8 | Dilution Diverter | `_dilutionDiV` |
+| 9 | Formation Manifold | `_FormManifold` |
+| 10 | Suspension Manifold | `_SuspManifold` |
 
 ### Function Blocks
 
 **General FBs** (VDS_Skid/PLC_Skid/POUs/General FBs/):
 - `FB_valveCTRL`: Core valve control logic, executes state machine (Open/Close, OpenLoop, PID modes) for all valves
-- `FB_ValvePOS`: Positions multiple valves to open state based on valve index array, includes delay logic
-- `FB_ValvePOSClose`: Closes multiple valves based on valve name array
-- `FB_SetValvesOpen`: Sets multiple valves to open by matching names and setting State=1, isOpen=TRUE
-- `FB_SetValvesClose`: Sets multiple valves to closed by matching names and setting State=0, isOpen=FALSE
+- `FB_ValvePOS`: Sequential valve positioning with state machine. Supports separate open/close sequences with edge detection on DI2 feedback and configurable delays (750ms between valves, 5s timeout)
 - `FB_PulseValve`: Generates timed pulses for valve initialization
+- `FB_MovingAverage`: Circular buffer moving average filter (configurable 1-100 samples) for signal smoothing
+- `FB_ScaleAnalog`: Linear scaling for analog inputs (e.g., 4-20mA to engineering units) with range validation
 
 **Status FBs** (VDS_Skid/PLC_Skid/POUs/Status FBs/):
-- `FB_CheckValveInputs`: Maps all 10 valve field inputs (DI1, DI2, AI1) from GVL to valve structures every cycle
+- `FB_CheckValveInputs`: Maps all 10 valve field inputs (DI1, DI2, AI1) from IO GVL to valve structures every cycle
 
 **Unit Operation FBs** (VDS_Skid/PLC_Skid/POUs/UnitOp FBs/):
-- `FBUO_OverPressure_1`: Orchestrates overpressure test sequence - positions valves via FB_ValvePos, controls pump, maps all valve outputs to GVL
+- `FBUO_OverPressure`: Orchestrates overpressure test sequence - positions valves via FB_ValvePOS, controls pump, maps all valve outputs to IO GVL
 - These FBs coordinate multiple valves and equipment for specific process operations
 
 ### I/O Hardware Configuration
@@ -95,12 +107,11 @@ Configuration files are in `VDS_Skid/_Config/IO/` as .xti XML files.
 
 ### Valve Index vs Name Lookup
 
-Recent optimization (commit 5a791b6) changed from string-based lookup to index-based for performance:
-- Valve names are still stored as WSTRING in GVL.sValveNames for HMI/debugging
-- New `stValveID` array provides INT indices (1-10) assigned in GVL
+Use index-based valve lookup for performance:
+- Valve names are stored as WSTRING in GVL.sValveNames for HMI/debugging only
+- `stValveID` array provides INT indices (1-10) assigned in GVL
 - `ST_Valves.ID` stores the index for each valve instance
-- Function blocks should use ID-based lookup (see FB_ValvePOS) instead of name-based when possible
-- Legacy FBs still use name-based lookup (FB_SetValvesOpen, FB_SetValvesClose) but should be migrated to index-based
+- All function blocks should use ID-based lookup (see FB_ValvePOS pattern)
 
 ### Valve Control State Machine
 
@@ -123,26 +134,19 @@ END_VAR
 
 ### I/O Mapping Flow
 
-1. Field inputs → GVL mapped variables (AT %I* declarations)
-2. GVL inputs → Valve structure inputs (in FB_CheckValveInputs, every cycle)
-3. Valve structure outputs → GVL mapped outputs (in Unit Operation FBs or MAIN)
-4. GVL outputs → Field outputs (AT %Q* declarations)
+1. Field inputs → IO GVL mapped variables (AT %I* declarations in IO.TcGVL)
+2. IO GVL inputs → Valve structure inputs (in FB_CheckValveInputs, every cycle)
+3. Valve structure outputs → IO GVL mapped outputs (in Unit Operation FBs)
+4. IO GVL outputs → Field outputs (AT %Q* declarations)
+
+**Important**: IO GVL uses `{attribute 'qualified_only'}`, so all references must use `IO.` prefix (e.g., `IO.AO1_wfiSV := fbValves[2].AO1;`)
 
 ## Important Conventions
 
 - Prefix `fb` for function block input/output parameters (e.g., `fbValves`, `fbProcessState`)
 - Prefix `h` for HMI/high-level control variables (e.g., `hOP_ProcessState`, `hOP_PumpSpeed`)
-- Use `gvl.` to reference global variables
+- Use `GVL.` for constants, `IO.` for I/O variables (IO requires qualified access)
 - Array indices in TwinCAT/IEC 61131-3 are 1-based, not 0-based
 - Time literals use format `T#1500MS` for TIME type
 - Comments use `//` for single line
 - Always initialize valves to safe state (closed, State=0) on startup
-
-## Recent Development Focus
-
-Based on git history:
-- Migration from name-based to index-based valve lookup for performance
-- Implementing Unit Operation function blocks for process sequences (overpressure testing)
-- Expanding from initial valve testing (few valves) to full 10-valve operational system
-- Integration of pump control with valve sequencing
-- OPC UA integration for SCADA/Ignition connectivity (mentioned in commit messages)

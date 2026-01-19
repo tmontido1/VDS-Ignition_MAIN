@@ -38,7 +38,7 @@ VAR
     timeoutTimer : TON;                                   // Timeout if valve doesn't start moving
 
     // Constants
-    VALVE_MOVE_DELAY : TIME := T#1500MS;                  // Delay between commanding valves
+    VALVE_MOVE_DELAY : TIME := T#750MS;                  // Delay between commanding valves
     VALVE_MOVE_TIMEOUT : TIME := T#5S;                    // Max time to wait for valve to start moving
 
     // Internal

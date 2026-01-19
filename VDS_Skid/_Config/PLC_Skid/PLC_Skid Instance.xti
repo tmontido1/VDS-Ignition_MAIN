@@ -3,9 +3,35 @@
 	<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" XtvPath="PLC_Skid\PLC_Skid Instance.xtv" TmcPath="PLC_Skid\PLC_Skid.tmc">
 		<Name>__FILENAME__</Name>
 		<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+		<UnrestoredVarLinks ImportTime="2026-01-19T14:30:34">
+			<OwnerA Name="OutputSrc" Prefix="TIPC^PLC_Skid^PLC_Skid Instance" Type="2">
+				<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 13 (IOLITE GATE LATCH v2.00 Bus2)^Term 16 (IOLITEr 16xAO Bus2)">
+					<Link VarA="GVL.AO1_FormManifold" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 9" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO1_SuspManifold" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 11" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO1_dilutionDiV" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 12" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO1_dilutionSV" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 1" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO1_formDrain" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 8" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO1_wfiBypassIn" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 7" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO1_wfiBypassOut" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 10" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO1_wfiFilterIn" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 5" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO1_wfiFilterOut" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 6" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO1_wfiSV" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 2" RestoreInfo="ANotFound"/>
+					<Link VarA="GVL.AO_wfiPump" TypeA="REAL" InOutA="1" GuidA="{18071995-0000-0000-0000-00000000000D}" VarB="AO RxPDO-Map^AO 3" RestoreInfo="ANotFound"/>
+				</OwnerB>
+			</OwnerA>
+		</UnrestoredVarLinks>
 		<Contexts>
 			<Context>
 				<Id>0</Id>
+				<Name>CyclicTask100ms</Name>
+				<ManualConfig>
+					<OTCID>#x02010040</OTCID>
+				</ManualConfig>
+				<Priority>1</Priority>
+				<CycleTime>100000000</CycleTime>
+			</Context>
+			<Context>
+				<Id>1</Id>
 				<Name>PlcTask</Name>
 				<ManualConfig>
 					<OTCID>#x02010030</OTCID>
@@ -15,66 +41,67 @@
 			</Context>
 		</Contexts>
 		<TaskPouOids>
+			<TaskPouOid Prio="1" OTCID="#x08502002"/>
 			<TaskPouOid Prio="20" OTCID="#x08502001"/>
 		</TaskPouOids>
 	</Instance>
 	<Mappings>
 		<OwnerA>
-			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 4 (EK1200)^Term 20 (ELM3104-0020)">
-				<Link VarA="PlcTask Inputs^GVL.AI_wfiFlowMeter" VarB="PAI Samples 1 Channel 1^Samples[0]"/>
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 3 (EK1200)^Term 2 (ELM3104-0020)">
+				<Link VarA="PlcTask Inputs^IO.AI_wfiFlowMeter" VarB="PAI Samples 1 Channel 1^Samples"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 13 (IOLITE GATE LATCH v2.00 Bus2)^Term 14 (IOLITEr 32xDI Bus2)">
-				<Link VarA="PlcTask Inputs^GVL.DI1_FormManifold" VarB="AI TxPDO-Map^DI21" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI1_SuspManifold" VarB="AI TxPDO-Map^DI17" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI1_dilutionDiV" VarB="AI TxPDO-Map^DI13" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI1_dilutionSV" VarB="AI TxPDO-Map^DI1" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI1_formDrain" VarB="AI TxPDO-Map^DI9" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI1_wfiBypassIn" VarB="AI TxPDO-Map^DI11" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI1_wfiBypassOut" VarB="AI TxPDO-Map^DI19" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI1_wfiFilterIn" VarB="AI TxPDO-Map^DI15" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI1_wfiFilterOut" VarB="AI TxPDO-Map^DI23" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI1_wfiSV" VarB="AI TxPDO-Map^DI3" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_FormManifold" VarB="AI TxPDO-Map^DI22" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_SuspManifold" VarB="AI TxPDO-Map^DI18" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_dilutionDiV" VarB="AI TxPDO-Map^DI14" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_dilutionSV" VarB="AI TxPDO-Map^DI2" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_formDrain" VarB="AI TxPDO-Map^DI10" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_wfiBypassIn" VarB="AI TxPDO-Map^DI12" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_wfiBypassOut" VarB="AI TxPDO-Map^DI20" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_wfiFilterIn" VarB="AI TxPDO-Map^DI16" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_wfiFilterOut" VarB="AI TxPDO-Map^DI24" Size="1"/>
-				<Link VarA="PlcTask Inputs^GVL.DI2_wfiSV" VarB="AI TxPDO-Map^DI4" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_FormManifold" VarB="AI TxPDO-Map^DI21" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_SuspManifold" VarB="AI TxPDO-Map^DI17" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_dilutionDiV" VarB="AI TxPDO-Map^DI13" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_dilutionSV" VarB="AI TxPDO-Map^DI1" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_formDrain" VarB="AI TxPDO-Map^DI9" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_wfiBypassIn" VarB="AI TxPDO-Map^DI11" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_wfiBypassOut" VarB="AI TxPDO-Map^DI19" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_wfiFilterIn" VarB="AI TxPDO-Map^DI15" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_wfiFilterOut" VarB="AI TxPDO-Map^DI23" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI1_wfiSV" VarB="AI TxPDO-Map^DI3" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_FormManifold" VarB="AI TxPDO-Map^DI22" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_SuspManifold" VarB="AI TxPDO-Map^DI18" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_dilutionDiV" VarB="AI TxPDO-Map^DI14" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_dilutionSV" VarB="AI TxPDO-Map^DI2" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_formDrain" VarB="AI TxPDO-Map^DI10" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_wfiBypassIn" VarB="AI TxPDO-Map^DI12" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_wfiBypassOut" VarB="AI TxPDO-Map^DI20" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_wfiFilterIn" VarB="AI TxPDO-Map^DI16" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_wfiFilterOut" VarB="AI TxPDO-Map^DI24" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_wfiSV" VarB="AI TxPDO-Map^DI4" Size="1"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 13 (IOLITE GATE LATCH v2.00 Bus2)^Term 15 (IOLITEr 16xLV Bus2)">
-				<Link VarA="PlcTask Inputs^GVL.AI1_FormManifold" VarB="UnBuf TxPDO-Map^u9"/>
-				<Link VarA="PlcTask Inputs^GVL.AI1_SuspManifold" VarB="UnBuf TxPDO-Map^u11"/>
-				<Link VarA="PlcTask Inputs^GVL.AI1_dilutionDiV" VarB="UnBuf TxPDO-Map^u12"/>
-				<Link VarA="PlcTask Inputs^GVL.AI1_dilutionSV" VarB="UnBuf TxPDO-Map^u1"/>
-				<Link VarA="PlcTask Inputs^GVL.AI1_formDrain" VarB="UnBuf TxPDO-Map^u8"/>
-				<Link VarA="PlcTask Inputs^GVL.AI1_wfiBypassIn" VarB="UnBuf TxPDO-Map^u7"/>
-				<Link VarA="PlcTask Inputs^GVL.AI1_wfiBypassOut" VarB="UnBuf TxPDO-Map^u10"/>
-				<Link VarA="PlcTask Inputs^GVL.AI1_wfiFilterIn" VarB="UnBuf TxPDO-Map^u5"/>
-				<Link VarA="PlcTask Inputs^GVL.AI1_wfiFilterOut" VarB="UnBuf TxPDO-Map^u6"/>
-				<Link VarA="PlcTask Inputs^GVL.AI1_wfiSV" VarB="UnBuf TxPDO-Map^u2"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_FormManifold" VarB="UnBuf TxPDO-Map^u9"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_SuspManifold" VarB="UnBuf TxPDO-Map^u11"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_dilutionDiV" VarB="UnBuf TxPDO-Map^u12"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_dilutionSV" VarB="UnBuf TxPDO-Map^u1"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_formDrain" VarB="UnBuf TxPDO-Map^u8"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_wfiBypassIn" VarB="UnBuf TxPDO-Map^u7"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_wfiBypassOut" VarB="UnBuf TxPDO-Map^u10"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_wfiFilterIn" VarB="UnBuf TxPDO-Map^u5"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_wfiFilterOut" VarB="UnBuf TxPDO-Map^u6"/>
+				<Link VarA="PlcTask Inputs^IO.AI1_wfiSV" VarB="UnBuf TxPDO-Map^u2"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 13 (IOLITE GATE LATCH v2.00 Bus2)^Term 16 (IOLITEr 16xAO Bus2)">
-				<Link VarA="PlcTask Outputs^GVL.AO1_FormManifold" VarB="AO RxPDO-Map^AO 9"/>
-				<Link VarA="PlcTask Outputs^GVL.AO1_SuspManifold" VarB="AO RxPDO-Map^AO 11"/>
-				<Link VarA="PlcTask Outputs^GVL.AO1_dilutionDiV" VarB="AO RxPDO-Map^AO 12"/>
-				<Link VarA="PlcTask Outputs^GVL.AO1_dilutionSV" VarB="AO RxPDO-Map^AO 1"/>
-				<Link VarA="PlcTask Outputs^GVL.AO1_formDrain" VarB="AO RxPDO-Map^AO 8"/>
-				<Link VarA="PlcTask Outputs^GVL.AO1_wfiBypassIn" VarB="AO RxPDO-Map^AO 7"/>
-				<Link VarA="PlcTask Outputs^GVL.AO1_wfiBypassOut" VarB="AO RxPDO-Map^AO 10"/>
-				<Link VarA="PlcTask Outputs^GVL.AO1_wfiFilterIn" VarB="AO RxPDO-Map^AO 5"/>
-				<Link VarA="PlcTask Outputs^GVL.AO1_wfiFilterOut" VarB="AO RxPDO-Map^AO 6"/>
-				<Link VarA="PlcTask Outputs^GVL.AO1_wfiSV" VarB="AO RxPDO-Map^AO 2"/>
-				<Link VarA="PlcTask Outputs^GVL.AO_wfiPump" VarB="AO RxPDO-Map^AO 3"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_FormManifold" VarB="AO RxPDO-Map^AO 9"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_SuspManifold" VarB="AO RxPDO-Map^AO 11"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_dilutionDiV" VarB="AO RxPDO-Map^AO 12"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_dilutionSV" VarB="AO RxPDO-Map^AO 1"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_formDrain" VarB="AO RxPDO-Map^AO 8"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_wfiBypassIn" VarB="AO RxPDO-Map^AO 7"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_wfiBypassOut" VarB="AO RxPDO-Map^AO 10"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_wfiFilterIn" VarB="AO RxPDO-Map^AO 5"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_wfiFilterOut" VarB="AO RxPDO-Map^AO 6"/>
+				<Link VarA="PlcTask Outputs^IO.AO1_wfiSV" VarB="AO RxPDO-Map^AO 2"/>
+				<Link VarA="PlcTask Outputs^IO.AO_wfiPump" VarB="AO RxPDO-Map^AO 3"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 4 (IOLITE GATE LATCH v2.00 Bus2)^Term 12 (IOLITEr 32xDO Bus2)">
-				<Link VarA="PlcTask Outputs^GVL.DO_wfiPump" VarB="DO RxPDO-Map^LED 3" Size="1"/>
+				<Link VarA="PlcTask Outputs^IO.DO_wfiPump" VarB="DO RxPDO-Map^LED 3" Size="1"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 4 (IOLITE GATE LATCH v2.00 Bus2)^Term 6 (IOLITEr 6xSTG Bus2)">
-				<Link VarA="PlcTask Inputs^GVL.AI_wfiPressureSensor" VarB="UnBuf TxPDO-Map^u1"/>
+				<Link VarA="PlcTask Inputs^IO.AI_wfiPressureSensor" VarB="UnBuf TxPDO-Map^u1"/>
 			</OwnerB>
 		</OwnerA>
 	</Mappings>
