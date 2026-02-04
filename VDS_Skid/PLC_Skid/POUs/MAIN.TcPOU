@@ -22,6 +22,7 @@ VAR
 	valveCtrl : FB_valveCTRL; // Function block instance
 	varPulse : FB_PulseValve;   // Instance of the function block
 	unitOp_OverPressure : FBUO_OverPressure;
+	unitOp_OverPressureEX : FBUO_OverPressure_EX;
 	wfi_OutletPressure : FB_ScaleAnalog;
 	wfi_MassFlowAvg10 : FB_MovingAverage;
 	wfi_MassFlowAvg30 : FB_MovingAverage;
@@ -42,10 +43,17 @@ VAR
 	
 //---------------------INIT Control Variables---------------------------------------//
 	hOP_ProcessState			: BOOL	:= FALSE;	// Overpressure process step active
-	hOP_ValvesPositionSet	 	: BOOL 	:= TRUE;	// Position Valves
+	hOP_ValvesPositionSet	 	: BOOL 	:= FALSE;	// Position Valves
 	hOP_PumpActive				: BOOL	:= FALSE;	// Turn on Pump
 	hOP_PumpSpeed				: REAL 	:= 0;		// Pump Speed
 //----------------------------------------------------------------------------------//
+
+//---------------------INIT Control Variables---------------------------------------//
+	hOPEX_ProcessState			: BOOL	:= FALSE;	// Overpressure process step active
+	hOPEX_ValvesPositionSet	 	: BOOL 	:= FALSE;	// Position Valves
+	hOPEX_PumpActive			: BOOL	:= FALSE;	// Turn on Pump
+//----------------------------------------------------------------------------------//
+
 END_VAR
 
 ]]></Declaration>
@@ -72,10 +80,17 @@ systemCheck_Valves(
 	fbValves 			:= stValves);
 //--------------------------------------------------------------------------------------------//
 
+//------------------------- Overpressure Process (Development Only) --------------------------//
+unitOp_OverPressureEX(
+	fbOPprocessState 		:= hOPEX_ProcessState,
+	fbValvePositionReady 	:= hOPEX_ValvesPositionSet, 
+	fbValves 				:= stValves);
+//--------------------------------------------------------------------------------------------//
+
 
 //------------------------- Overpressure Process (Development Only) --------------------------//
 unitOp_OverPressure(
-	fbOPprocessState 		:= hOP_ProcessState := TRUE,
+	fbOPprocessState 		:= hOP_ProcessState,
 	fbValvePositionReady 	:= hOP_ValvesPositionSet, 
 	fbValves 				:= stValves,
 	fbPumpActive			:=hOP_PumpActive,
@@ -116,7 +131,7 @@ wfi_MassFlowAvg100(
 
 // Pump Control - TBD
 IO.DO_wfiPump := outputDO3;
-IF hOP_PumpActive THEN
+IF hOP_PumpActive AND hOP_ValvesPositionSet THEN
 // 	outputAO3 := IO.AO3 := 5;
 	IO.AO_wfiPump := outputAO3;
 ELSE
