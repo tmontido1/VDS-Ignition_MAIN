@@ -1,0 +1,313 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FBUO_OPPump_SyringeSetup" Id="{24e09f27-d048-049e-2b97-00341c5a4c90}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FBUO_OPPump_SyringeSetup
+VAR_INPUT
+    bEnable         : BOOL;     // Enable the function block
+    bStart          : BOOL;     // Start the setup process (rising edge)
+END_VAR
+
+VAR_OUTPUT
+    bBusy           : BOOL;     // Setup in progress
+    bDone           : BOOL;     // Setup complete - syringes at midpoint
+    bError          : BOOL;     // Error occurred
+    nCurrentStep    : INT;      // Current step for diagnostics
+END_VAR
+
+VAR
+    // State machine
+    nState          : INT := 0;
+
+    // Edge detection
+    rtrigStart      : R_TRIG;
+
+    // Timing
+    tonDelay        : TON;
+    tonTimeout      : TON;       // Timeout for command acknowledgment
+
+    // Tracking which axes have been stopped
+    bAxis0Stopped   : BOOL;
+    bAxis1Stopped   : BOOL;
+
+    // Target volume for midpoint (ul)
+    rTargetVolume   : LREAL := 12500.0;
+
+    // Tracking fill started (saw BUSY state)
+    bAxis0FillStarted : BOOL;
+    bAxis1FillStarted : BOOL;
+
+    // Tracking fill complete (saw IDLE after BUSY)
+    bAxis0FillDone  : BOOL;
+    bAxis1FillDone  : BOOL;
+
+    // Tracking empty started (saw BUSY state)
+    bAxis0EmptyStarted : BOOL;
+    bAxis1EmptyStarted : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* FBUO_OPPump_SyringeSetup
+   Purpose: Prepare syringes for operator attachment
+   Process:
+   1. Fill both axes until they bottom out (hit limit switch, status goes IDLE)
+   2. Empty both axes until VolumeRemainingCorrected reaches 12500ul (midpoint)
+   3. Stop at midpoint for operator to attach syringes
+
+   Commands are offset by 100ms to avoid serial bus contention
+   Each command waits for acknowledgment (eSelectedAction returns to IDLE) before proceeding
+   Fill/Empty waits for BUSY state before waiting for IDLE (confirms motion started)
+*)
+
+// Edge detection on Start
+rtrigStart(CLK := bStart AND bEnable);
+
+// Reset outputs when disabled
+IF NOT bEnable THEN
+    nState := 0;
+    bBusy := FALSE;
+    bDone := FALSE;
+    bError := FALSE;
+    bAxis0Stopped := FALSE;
+    bAxis1Stopped := FALSE;
+    bAxis0FillStarted := FALSE;
+    bAxis1FillStarted := FALSE;
+    bAxis0FillDone := FALSE;
+    bAxis1FillDone := FALSE;
+    bAxis0EmptyStarted := FALSE;
+    bAxis1EmptyStarted := FALSE;
+    tonDelay(IN := FALSE);
+    tonTimeout(IN := FALSE);
+    RETURN;
+END_IF
+
+// State machine
+CASE nState OF
+
+    0: // IDLE - Wait for start
+        nCurrentStep := 0;
+        bBusy := FALSE;
+        bDone := FALSE;
+        bError := FALSE;
+        bAxis0Stopped := FALSE;
+        bAxis1Stopped := FALSE;
+        bAxis0FillStarted := FALSE;
+        bAxis1FillStarted := FALSE;
+        bAxis0FillDone := FALSE;
+        bAxis1FillDone := FALSE;
+        bAxis0EmptyStarted := FALSE;
+        bAxis1EmptyStarted := FALSE;
+
+        IF rtrigStart.Q THEN
+            bBusy := TRUE;
+            nState := 10;
+        END_IF
+
+    // ===== FILL PHASE =====
+
+    10: // FILL_LEFT - Send Fill command for axis 0
+        nCurrentStep := 1;
+        GVL_Serial.eSelectedAction := EN_AtlasPumpAction.FILL_LEFT_FAST;
+        nState := 15;
+
+    15: // WAIT_FILL_LEFT_ACK - Wait for command to be processed
+        // Command is processed when eSelectedAction returns to IDLE
+        IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+            tonDelay(IN := FALSE);
+            nState := 20;
+        END_IF
+
+    20: // FILL_DELAY - Wait 100ms before sending next command
+        tonDelay(IN := TRUE, PT := T#100MS);
+        IF tonDelay.Q THEN
+            tonDelay(IN := FALSE);
+            nState := 30;
+        END_IF
+
+    30: // FILL_RIGHT - Send Fill command for axis 1
+        nCurrentStep := 2;
+        GVL_Serial.eSelectedAction := EN_AtlasPumpAction.FILL_RIGHT_FAST;
+        nState := 35;
+
+    35: // WAIT_FILL_RIGHT_ACK - Wait for command to be processed
+        IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+            nState := 40;
+        END_IF
+
+    40: // WAIT_FILL_BUSY - Wait for both axes to show BUSY (confirms fill started)
+        nCurrentStep := 3;
+
+        // Check if axis 0 has started (BUSY)
+        IF GVL_Serial.stPumpStatus[0].Valid AND GVL_Serial.stPumpStatus[0].IsBusy THEN
+            bAxis0FillStarted := TRUE;
+        END_IF
+
+        // Check if axis 1 has started (BUSY)
+        IF GVL_Serial.stPumpStatus[1].Valid AND GVL_Serial.stPumpStatus[1].IsBusy THEN
+            bAxis1FillStarted := TRUE;
+        END_IF
+
+        // Both started - now wait for them to finish
+        IF bAxis0FillStarted AND bAxis1FillStarted THEN
+            nState := 45;
+        END_IF
+
+    45: // WAIT_FILL_IDLE - Wait for both axes to go IDLE (bottomed out)
+        nCurrentStep := 4;
+
+        // Check if axis 0 has gone IDLE (bottomed out)
+        IF GVL_Serial.stPumpStatus[0].Valid AND GVL_Serial.stPumpStatus[0].IsIdle THEN
+            bAxis0FillDone := TRUE;
+        END_IF
+
+        // Check if axis 1 has gone IDLE (bottomed out)
+        IF GVL_Serial.stPumpStatus[1].Valid AND GVL_Serial.stPumpStatus[1].IsIdle THEN
+            bAxis1FillDone := TRUE;
+        END_IF
+
+        // Both bottomed out - proceed to empty phase
+        IF bAxis0FillDone AND bAxis1FillDone THEN
+            tonDelay(IN := FALSE);
+            nState := 50;
+        END_IF
+
+    // ===== EMPTY PHASE =====
+
+    50: // EMPTY_LEFT - Send Empty command for axis 0
+        nCurrentStep := 5;
+        GVL_Serial.eSelectedAction := EN_AtlasPumpAction.EMPTY_LEFT_FAST;
+        nState := 55;
+
+    55: // WAIT_EMPTY_LEFT_ACK - Wait for command to be processed
+        IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+            tonDelay(IN := FALSE);
+            nState := 60;
+        END_IF
+
+    60: // EMPTY_DELAY - Wait 100ms before sending next command
+        tonDelay(IN := TRUE, PT := T#100MS);
+        IF tonDelay.Q THEN
+            tonDelay(IN := FALSE);
+            nState := 70;
+        END_IF
+
+    70: // EMPTY_RIGHT - Send Empty command for axis 1
+        nCurrentStep := 6;
+        GVL_Serial.eSelectedAction := EN_AtlasPumpAction.EMPTY_RIGHT_FAST;
+        nState := 75;
+
+    75: // WAIT_EMPTY_RIGHT_ACK - Wait for command to be processed
+        IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+            bAxis0Stopped := FALSE;
+            bAxis1Stopped := FALSE;
+            nState := 76;
+        END_IF
+
+    76: // WAIT_EMPTY_BUSY - Wait for both axes to show BUSY (confirms empty started)
+        nCurrentStep := 7;
+
+        // Check if axis 0 has started (BUSY)
+        IF GVL_Serial.stPumpStatus[0].Valid AND GVL_Serial.stPumpStatus[0].IsBusy THEN
+            bAxis0EmptyStarted := TRUE;
+        END_IF
+
+        // Check if axis 1 has started (BUSY)
+        IF GVL_Serial.stPumpStatus[1].Valid AND GVL_Serial.stPumpStatus[1].IsBusy THEN
+            bAxis1EmptyStarted := TRUE;
+        END_IF
+
+        // Both started - now monitor for target volume
+        IF bAxis0EmptyStarted AND bAxis1EmptyStarted THEN
+            nState := 80;
+        END_IF
+
+    80: // MONITOR_EMPTY - Monitor volumes, stop whichever axis reaches midpoint first
+        nCurrentStep := 8;
+
+        // Check axis 0 - stop when VolumeRemainingCorrected <= target
+        IF NOT bAxis0Stopped AND NOT bAxis1Stopped THEN
+            // Neither stopped yet - check axis 0 first
+            IF GVL_Serial.stPumpStatus[0].Valid AND
+               GVL_Serial.stPumpStatus[0].VolumeRemainingCorrected <= rTargetVolume THEN
+                GVL_Serial.eSelectedAction := EN_AtlasPumpAction.STOP_LEFT;
+                bAxis0Stopped := TRUE;
+                nState := 82;  // Wait for ack, then check axis 1
+            // Also check axis 1 - it might reach target first
+            ELSIF GVL_Serial.stPumpStatus[1].Valid AND
+                  GVL_Serial.stPumpStatus[1].VolumeRemainingCorrected <= rTargetVolume THEN
+                GVL_Serial.eSelectedAction := EN_AtlasPumpAction.STOP_RIGHT;
+                bAxis1Stopped := TRUE;
+                nState := 92;  // Wait for ack, then check axis 0
+            END_IF
+        ELSIF bAxis0Stopped AND NOT bAxis1Stopped THEN
+            // Axis 0 already stopped, check axis 1
+            IF GVL_Serial.stPumpStatus[1].Valid AND
+               GVL_Serial.stPumpStatus[1].VolumeRemainingCorrected <= rTargetVolume THEN
+                GVL_Serial.eSelectedAction := EN_AtlasPumpAction.STOP_RIGHT;
+                bAxis1Stopped := TRUE;
+                nState := 94;  // Wait for ack then done
+            END_IF
+        ELSIF bAxis1Stopped AND NOT bAxis0Stopped THEN
+            // Axis 1 already stopped, check axis 0
+            IF GVL_Serial.stPumpStatus[0].Valid AND
+               GVL_Serial.stPumpStatus[0].VolumeRemainingCorrected <= rTargetVolume THEN
+                GVL_Serial.eSelectedAction := EN_AtlasPumpAction.STOP_LEFT;
+                bAxis0Stopped := TRUE;
+                nState := 94;  // Wait for ack then done
+            END_IF
+        END_IF
+
+        // Both stopped - done
+        IF bAxis0Stopped AND bAxis1Stopped THEN
+            nState := 100;
+        END_IF
+
+    82: // WAIT_STOP_LEFT_ACK - Wait for stop command to be processed
+        IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+            tonDelay(IN := FALSE);
+            nState := 85;
+        END_IF
+
+    85: // STOP_DELAY_0 - Wait 100ms after stopping axis 0
+        tonDelay(IN := TRUE, PT := T#100MS);
+        IF tonDelay.Q THEN
+            tonDelay(IN := FALSE);
+            // Go back to monitor to check axis 1
+            nState := 80;
+        END_IF
+
+    92: // WAIT_STOP_RIGHT_ACK - Wait for stop command to be processed
+        IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+            tonDelay(IN := FALSE);
+            nState := 93;
+        END_IF
+
+    93: // STOP_DELAY_1 - Wait 100ms after stopping axis 1
+        tonDelay(IN := TRUE, PT := T#100MS);
+        IF tonDelay.Q THEN
+            tonDelay(IN := FALSE);
+            // Go back to monitor to check axis 0
+            nState := 80;
+        END_IF
+
+    94: // WAIT_FINAL_STOP_ACK - Wait for final stop command to be processed
+        nCurrentStep := 9;
+        IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+            nState := 100;
+        END_IF
+
+    // ===== COMPLETE =====
+
+    100: // DONE - Setup complete
+        nCurrentStep := 10;
+        bBusy := FALSE;
+        bDone := TRUE;
+
+        // Wait for bStart to go FALSE before allowing restart
+        IF NOT bStart THEN
+            nState := 0;
+        END_IF
+
+END_CASE]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

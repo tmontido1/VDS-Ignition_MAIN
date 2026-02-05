@@ -54,6 +54,20 @@ VAR
 	hOPEX_PumpActive			: BOOL	:= FALSE;	// Turn on Pump
 //----------------------------------------------------------------------------------//
 
+
+//----------------------------INIT Function Blocks----------------------------------//
+	fbSyringeSetup : FBUO_OPPump_SyringeSetup;
+	fbAcetonePrime : FBUO_OPPump_AcetonePrime;
+//----------------------------------------------------------------------------------//	
+	
+///---------------------Organic Phase Setup ---------------------------------------//
+OPActive					: BOOL	:= FALSE;	
+bStartSyringeSetup			: BOOL	:= FALSE;	// Start Syringe Setup Routine
+bStartActenePriming			: BOOL	:= FALSE;	// Start Acetone Priming Routine
+nAcetoneCycles				: INT	:= 2;
+nAcetoneCycle				: INT;	
+//----------------------------------------------------------------------------------//
+
 END_VAR
 
 ]]></Declaration>
@@ -98,6 +112,36 @@ unitOp_OverPressure(
 //--------------------------------------------------------------------------------------------//
 
 
+IF OPActive THEN
+	GVL_Serial.bEnablePCControl := TRUE;
+  fbSyringeSetup(
+      bEnable := TRUE,
+      bStart  := bStartSyringeSetup
+  );
+  fbAcetonePrime(
+      bEnable            := TRUE,
+      bStartAcetonePrime := bStartActenePriming,
+      nSyringeCycles     := nAcetoneCycles
+  );
+  // Monitor progress
+  nAcetoneCycle := fbAcetonePrime.nCurrentCycle;  // Shows 1, then 2
+END_IF
+
+//OP Routine Status
+
+  IF fbSyringeSetup.bDone THEN
+      // Syringes at 12.5ml - ready for operator to attach
+  END_IF
+
+  IF fbAcetonePrime.bDone THEN
+      // Priming complete, syringes are empty
+  END_IF
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 rawWFIPressure := (IO.AI_wfiPressureSensor);
 wfi_OutletPressure(
 					fbRawValue := rawWFIPressure,

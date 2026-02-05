@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="ST_AtlasPumpStatus" Id="{a1b2c3d4-5678-90ab-cdef-112233445566}">
+    <Declaration><![CDATA[TYPE ST_AtlasPumpStatus :
+STRUCT
+    (* Parsed from Status Response: #Sn <error> <state> <vol_remain> <movements> <cumul_vol> <flow_rate> <node1> <node2> <total_cumul> *)
+
+    ErrorCode        : INT;         // 0=OK, 1=busy, 2=invalid pump, 3=failure, 4=invalid port, 5=invalid command
+    CurrentState     : INT;         // 1=PUMPS_BUSY, 6=PUMPS_IDLE
+    VolumeRemaining  : LREAL;       // ul - raw volume remaining from pump (has offset)
+    VolumeRemainingCorrected : LREAL; // ul - corrected volume remaining (0 = empty, SyringeSize = full)
+    SyringeMovements : DINT;        // Number of syringe movements
+    CumulativeVolume : LREAL;       // ul - cumulative volume pumped (may reset)
+    CurrentFlowRate  : LREAL;       // ul/min
+    NodeSensor1      : STRING(20);  // Node sensor value 1 (or '?' if no node)
+    NodeSensor2      : STRING(20);  // Node sensor value 2 (or '?' if no node)
+    TotalCumulativeVol : LREAL;     // ul - total cumulative volume (firmware 1.4.26+, persists)
+
+    (* Status Flags *)
+    Valid            : BOOL;        // TRUE if last parse succeeded
+    IsBusy           : BOOL;        // TRUE if CurrentState = 1 (PUMPS_BUSY)
+    IsIdle           : BOOL;        // TRUE if CurrentState = 6 (PUMPS_IDLE)
+    HasError         : BOOL;        // TRUE if ErrorCode <> 0
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -29,6 +29,9 @@
     <Compile Include="DUTs\ST_AtlasPumpCmd.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\ST_AtlasPumpStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\ST_Pumps.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -75,6 +78,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\Status FBs\FB_CheckValveInputs.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\UnitOp FBs\FBUO_OPPUMP_AcetonePrime.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\UnitOp FBs\FBUO_OPPump_SyringeSetup.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\UnitOp FBs\FBUO_OverPressure.TcPOU">

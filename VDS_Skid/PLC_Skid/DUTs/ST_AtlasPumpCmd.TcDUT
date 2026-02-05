@@ -6,15 +6,20 @@ STRUCT
 (* Basic Controls *)
     StopLeft        : STRING := 'X0';
 	StopRight        : STRING := 'X1';
-    Pause       : STRING := 'PA';
-    Unpause     : STRING := 'UP';
-
+    PauseLeft       : STRING := 'W0';
+	PauseRight       : STRING := 'W1';
+    UnpauseLeft     : STRING := 'U0';
+	UnpauseRight     : STRING := 'U1';
     (* 15ml/min Port 2 Commands *)
     (* Format: [Command][Volume/Rate] [Port] *)
-    EmptyLeft   : STRING := 'E0 15000 2';
-    EmptyRight  : STRING := 'E1 15000 2';
-    FillLeft    : STRING := 'F0 15000 2';
-    FillRight   : STRING := 'F1 15000 2';
+    EmptyLeft_FAST   : STRING := 'E0 70000 2';
+    EmptyRight_FAST  : STRING := 'E1 70000 2';
+    FillLeft_FAST    : STRING := 'F0 70000 1';
+    FillRight_FAST   : STRING := 'F1 70000 1';
+	EmptyLeft_PRIME   : STRING := 'E0 40000 2';
+    EmptyRight_PRIME  : STRING := 'E1 40000 2';
+    FillLeft_PRIME    : STRING := 'F0 40000 1';
+    FillRight_PRIME   : STRING := 'F1 40000 1';
 END_STRUCT
 END_TYPE
 ]]></Declaration>

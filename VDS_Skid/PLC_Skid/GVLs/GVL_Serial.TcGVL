@@ -4,17 +4,29 @@
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL
     (* I/O variables for a PC-COM port *)
-    stIn_PcCom 		AT %I*  		: PcComInData; (* linked to the port in the TwinCAT System Manager *)
-    stOut_PcCom 	AT %Q*  		: PcComOutData; (* linked to the port in the TwinCAT System Manager *)
-    RxBufferPcCom       			: ComBuffer; (* Receive data buffer; used with all receive function blocks*)
-    TxBufferPcCom       			: ComBuffer; (* Transmit data buffer; used with all receive function blocks*)
-	
-	
-	bEnablePCControl	: BOOL := FALSE;	// Set TRUE to enable automatic A1 heartbeat
-	sCommandString		: STRING := '';	// Manual command string (set before bStartCommand)
-	bStartCommand     	: BOOL;         // Trigger to send manual command via sCommandString
-	eSelectedAction 		: EN_AtlasPumpAction := EN_AtlasPumpAction.IDLE;
-	
+    stIn_PcCom      AT %I*  : PcComInData;  (* linked to the port in the TwinCAT System Manager *)
+    stOut_PcCom     AT %Q*  : PcComOutData; (* linked to the port in the TwinCAT System Manager *)
+    RxBufferPcCom           : ComBuffer;    (* Receive data buffer *)
+    TxBufferPcCom           : ComBuffer;    (* Transmit data buffer *)
+
+    (* PC Control *)
+    bEnablePCControl    : BOOL := FALSE;    // Set TRUE to enable PC Control mode
+    sCommandString      : STRING := '';     // Manual command string (set before bStartCommand)
+    bStartCommand       : BOOL;             // Trigger to send manual command via sCommandString
+    eSelectedAction     : EN_AtlasPumpAction := EN_AtlasPumpAction.IDLE;
+
+    (* Pump Status - Updated every 50ms per axis (100ms total cycle) *)
+    stPumpStatus        : ARRAY[0..1] OF ST_AtlasPumpStatus;  // Status for axis 0 and axis 1
+    bStatusPollingActive: BOOL := FALSE;    // TRUE when status polling is running
+
+    (* Syringe Configuration - used to correct VolumeRemaining offset *)
+    (* Each axis may have a different "full" reference point from the pump *)
+    (* Axis 0: Full=5000, Empty=-20000  -> Offset = 20000 (or SyringeSize - FullRef) *)
+    (* Axis 1: Full=10000, Empty=-15000 -> Offset = 15000 (or SyringeSize - FullRef) *)
+    (* Corrected = Raw + Offset, so that Full=SyringeSize, Empty=0 *)
+    rSyringeSize        : ARRAY[0..1] OF LREAL := [25000.0, 25000.0];  // ul - syringe size for each axis
+    rFullReference      : ARRAY[0..1] OF LREAL := [5000.0, 10000.0];   // ul - raw value when syringe is full
+
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

@@ -30,17 +30,25 @@ VAR
     tonTimeout        	: TON;          // To catch if the device never responds
 	sCleanResponse		: STRING;
 
-	(* PC Control Heartbeat *)
+	(* PC Control Entry/Exit *)
 	bInPCControl		: BOOL := FALSE;	// TRUE when pump confirmed in PC Control mode
-	bHeartbeatOK		: BOOL := FALSE;	// TRUE if last heartbeat succeeded
-	tonHeartbeat		: TON;				// 2s interval timer for heartbeat
-	bIsHeartbeat		: BOOL := FALSE;	// TRUE if current command is heartbeat (not manual)
-	sActiveCommand		: STRING;			// The command currently being sent
-
-	(* PC Control Exit *)
+	bIsEntryCommand		: BOOL := FALSE;	// TRUE if current command is A1 entry
 	ftrigPCControl		: F_TRIG;			// Falling edge detection for bEnablePCControl
 	bExitingPCControl	: BOOL := FALSE;	// TRUE while sending A0 exit command
 	bIsExitCommand		: BOOL := FALSE;	// TRUE if current command is A0 exit
+	sActiveCommand		: STRING;			// The command currently being sent
+
+	(* Status Polling - replaces heartbeat once in PC Control *)
+	tonStatusPoll		: TON;				// 50ms interval timer for status polling
+	nStatusAxis			: INT := 0;			// Current axis to poll (alternates 0, 1)
+	bIsStatusCommand	: BOOL := FALSE;	// TRUE if current command is status query
+
+	(* Status Parsing *)
+	sParseBuffer		: STRING;			// Working buffer for parsing
+	nSpacePos			: INT;				// Position of space in parse buffer
+	sToken				: STRING;			// Extracted token
+	nFieldIndex			: INT;				// Current field being parsed
+	nParsedAxis			: INT;				// Axis number parsed from response
 
 	(* Manual Command Status *)
 	bCommandDone		: BOOL := FALSE;	// Pulses TRUE when manual command completes
@@ -70,9 +78,10 @@ IF ftrigPCControl.Q AND bInPCControl THEN
     bExitingPCControl := TRUE;  // Flag to send A0 command
 END_IF
 
-// Clear heartbeat timer when PC Control disabled
+// Clear status polling when PC Control disabled
 IF NOT GVL_Serial.bEnablePCControl AND NOT bExitingPCControl THEN
-    tonHeartbeat(IN := FALSE);
+    tonStatusPoll(IN := FALSE);
+    GVL_Serial.bStatusPollingActive := FALSE;
 END_IF
 
 (* 1. ALWAYS run the background communication first *)
@@ -87,61 +96,86 @@ fbSerialLineControlADS(
     Error      => bError,
     ErrorID    => nErrorID);
 
-(* 2. Heartbeat timer - runs when PC Control enabled, state machine is idle, and no manual command pending *)
-tonHeartbeat(IN := GVL_Serial.bEnablePCControl AND bPortOpened AND (iState = 0) AND NOT GVL_Serial.bStartCommand, PT := T#2S);
+(* 2. Status poll timer - runs when in PC Control, state machine is idle, and no manual command pending *)
+tonStatusPoll(IN := bInPCControl AND bPortOpened AND (iState = 0) AND NOT GVL_Serial.bStartCommand AND GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE, PT := T#50MS);
 
 (* 3. Command State Machine *)
 CASE iState OF
-    0: (* IDLE - Check for exit command, manual command, then heartbeat *)
+    0: (* IDLE - Priority: Exit > Manual > Status Poll > Entry *)
         bCommandDone := FALSE;  // Clear completion flag
 
         // A0 Exit command takes highest priority
         IF bExitingPCControl AND bPortOpened THEN
-            bIsHeartbeat    := FALSE;
-            bIsExitCommand  := TRUE;
-            sActiveCommand  := 'A0$R$L';
-            sResponse       := '';
-            iState          := 10;
+            bIsEntryCommand  := FALSE;
+            bIsExitCommand   := TRUE;
+            bIsStatusCommand := FALSE;
+            sActiveCommand   := 'A0$R$L';
+            sResponse        := '';
+            iState           := 10;
 
         // Manual command via enum selection
         ELSIF GVL_Serial.eSelectedAction <> EN_AtlasPumpAction.IDLE AND bPortOpened THEN
             (* Map the Selection to the specific Struct String *)
             CASE GVL_Serial.eSelectedAction OF
-                EN_AtlasPumpAction.STOP_LEFT:   sCommandToSend := PumpCmds.StopLeft;
-                EN_AtlasPumpAction.STOP_RIGHT:  sCommandToSend := PumpCmds.StopRight;
-                EN_AtlasPumpAction.PAUSE:       sCommandToSend := PumpCmds.Pause;
-                EN_AtlasPumpAction.UNPAUSE:     sCommandToSend := PumpCmds.Unpause;
-                EN_AtlasPumpAction.EMPTY_LEFT:  sCommandToSend := PumpCmds.EmptyLeft;
-                EN_AtlasPumpAction.EMPTY_RIGHT: sCommandToSend := PumpCmds.EmptyRight;
-                EN_AtlasPumpAction.FILL_LEFT:   sCommandToSend := PumpCmds.FillLeft;
-                EN_AtlasPumpAction.FILL_RIGHT:  sCommandToSend := PumpCmds.FillRight;
+                EN_AtlasPumpAction.STOP_LEFT:     sCommandToSend := PumpCmds.StopLeft;
+                EN_AtlasPumpAction.STOP_RIGHT:    sCommandToSend := PumpCmds.StopRight;
+                EN_AtlasPumpAction.PAUSE_LEFT:    sCommandToSend := PumpCmds.PauseLeft;
+                EN_AtlasPumpAction.PAUSE_RIGHT:   sCommandToSend := PumpCmds.PauseRight;
+                EN_AtlasPumpAction.UNPAUSE_LEFT:  sCommandToSend := PumpCmds.UnpauseLeft;
+                EN_AtlasPumpAction.UNPAUSE_RIGHT: sCommandToSend := PumpCmds.UnpauseRight;
+                EN_AtlasPumpAction.EMPTY_LEFT_FAST:    sCommandToSend := PumpCmds.EmptyLeft_FAST;
+                EN_AtlasPumpAction.EMPTY_RIGHT_FAST:   sCommandToSend := PumpCmds.EmptyRight_FAST;
+                EN_AtlasPumpAction.FILL_LEFT_FAST:     sCommandToSend := PumpCmds.FillLeft_FAST;
+                EN_AtlasPumpAction.FILL_RIGHT_FAST:    sCommandToSend := PumpCmds.FillRight_FAST;
+				EN_AtlasPumpAction.EMPTY_LEFT_PRIME:    sCommandToSend := PumpCmds.EmptyLeft_PRIME;
+                EN_AtlasPumpAction.EMPTY_RIGHT_PRIME:   sCommandToSend := PumpCmds.EmptyRight_PRIME;
+                EN_AtlasPumpAction.FILL_LEFT_PRIME:     sCommandToSend := PumpCmds.FillLeft_PRIME;
+                EN_AtlasPumpAction.FILL_RIGHT_PRIME:    sCommandToSend := PumpCmds.FillRight_PRIME;
             END_CASE
             GVL_Serial.eSelectedAction := EN_AtlasPumpAction.IDLE;  // Clear selection
-            bIsHeartbeat    := FALSE;
-            bIsExitCommand  := FALSE;
-            bCommandTimeout := FALSE;
-            sActiveCommand  := CONCAT(sCommandToSend, '$R$L');
-            sResponse       := '';
-            iState          := 10;
+            bIsEntryCommand  := FALSE;
+            bIsExitCommand   := FALSE;
+            bIsStatusCommand := FALSE;
+            bCommandTimeout  := FALSE;
+            sActiveCommand   := CONCAT(sCommandToSend, '$R$L');
+            sResponse        := '';
+            iState           := 10;
 
         // Manual command via bStartCommand trigger
         ELSIF GVL_Serial.bStartCommand AND bPortOpened THEN
             GVL_Serial.bStartCommand := FALSE;
-            bIsHeartbeat    := FALSE;
-            bIsExitCommand  := FALSE;
-            bCommandTimeout := FALSE;
-            sActiveCommand  := CONCAT(sCommandToSend, '$R$L');
-            sResponse       := '';
-            iState          := 10;
+            bIsEntryCommand  := FALSE;
+            bIsExitCommand   := FALSE;
+            bIsStatusCommand := FALSE;
+            bCommandTimeout  := FALSE;
+            sActiveCommand   := CONCAT(sCommandToSend, '$R$L');
+            sResponse        := '';
+            iState           := 10;
 
-        // Heartbeat fires when timer elapses
-        ELSIF GVL_Serial.bEnablePCControl AND bPortOpened AND tonHeartbeat.Q THEN
-            tonHeartbeat(IN := FALSE); 	// Reset timer
-            bIsHeartbeat    := TRUE;
-            bIsExitCommand  := FALSE;
-            sActiveCommand  := 'A1$R$L';
-            sResponse       := '';
-            iState          := 10;
+        // Status polling - once in PC Control, poll S0/S1 alternately every 50ms
+        ELSIF bInPCControl AND bPortOpened AND tonStatusPoll.Q THEN
+            tonStatusPoll(IN := FALSE);  // Reset timer
+            bIsEntryCommand  := FALSE;
+            bIsExitCommand   := FALSE;
+            bIsStatusCommand := TRUE;
+            // Alternate between S0 and S1
+            IF nStatusAxis = 0 THEN
+                sActiveCommand := 'S0$R$L';
+            ELSE
+                sActiveCommand := 'S1$R$L';
+            END_IF
+            sResponse := '';
+            iState    := 10;
+            GVL_Serial.bStatusPollingActive := TRUE;
+
+        // A1 Entry command - only when PC Control requested but not yet confirmed
+        ELSIF GVL_Serial.bEnablePCControl AND NOT bInPCControl AND bPortOpened THEN
+            bIsEntryCommand  := TRUE;
+            bIsExitCommand   := FALSE;
+            bIsStatusCommand := FALSE;
+            sActiveCommand   := 'A1$R$L';
+            sResponse        := '';
+            iState           := 10;
         END_IF
 
     10: (* SEND command *)
@@ -174,20 +208,32 @@ CASE iState OF
                 // A0 response is "#A" - check if we got it
                 IF sCleanResponse = '#A' THEN
                     bInPCControl := FALSE;
-                    bHeartbeatOK := FALSE;
+                    GVL_Serial.bStatusPollingActive := FALSE;
                 END_IF
                 bExitingPCControl := FALSE;
                 bIsExitCommand := FALSE;
 
-            // Check if this was a heartbeat (A1)
-            ELSIF bIsHeartbeat THEN
+            // Check if this was an entry command (A1)
+            ELSIF bIsEntryCommand THEN
                 // A1 response is "#A" - check if we got it
                 IF sCleanResponse = '#A' THEN
                     bInPCControl := TRUE;
-                    bHeartbeatOK := TRUE;
-                ELSE
-                    bHeartbeatOK := FALSE;
+                    nStatusAxis := 0;  // Start polling with axis 0
                 END_IF
+                bIsEntryCommand := FALSE;
+
+            // Check if this was a status command (S0 or S1)
+            ELSIF bIsStatusCommand THEN
+                // Parse the status response and populate the struct
+                // Response format: #Sn <error> <state> <vol_remain> <movements> <cumul_vol> <flow_rate> <node1> <node2> <total_cumul>
+                ParseStatusResponse();
+                // Alternate axis for next poll
+                IF nStatusAxis = 0 THEN
+                    nStatusAxis := 1;
+                ELSE
+                    nStatusAxis := 0;
+                END_IF
+                bIsStatusCommand := FALSE;
 
             ELSE
                 // Manual command completed successfully
@@ -203,10 +249,21 @@ CASE iState OF
                 bExitingPCControl := FALSE;
                 bIsExitCommand := FALSE;
                 bInPCControl := FALSE;
-                bHeartbeatOK := FALSE;
-            ELSIF bIsHeartbeat THEN
-                bHeartbeatOK := FALSE;
-                bInPCControl := FALSE;  // Lost communication, assume not in PC Control
+                GVL_Serial.bStatusPollingActive := FALSE;
+            ELSIF bIsEntryCommand THEN
+                // Entry command timed out
+                bIsEntryCommand := FALSE;
+                bInPCControl := FALSE;
+            ELSIF bIsStatusCommand THEN
+                // Status poll timed out - mark status as invalid
+                GVL_Serial.stPumpStatus[nStatusAxis].Valid := FALSE;
+                // Still alternate axis
+                IF nStatusAxis = 0 THEN
+                    nStatusAxis := 1;
+                ELSE
+                    nStatusAxis := 0;
+                END_IF
+                bIsStatusCommand := FALSE;
             ELSE
                 // Manual command timed out
                 bCommandTimeout := TRUE;
@@ -216,5 +273,99 @@ CASE iState OF
         END_IF
 END_CASE]]></ST>
     </Implementation>
+    <Action Name="ParseStatusResponse" Id="{b2c3d4e5-6789-0abc-def1-223344556677}">
+      <Implementation>
+        <ST><![CDATA[(* Parse status response: #Sn <error> <state> <vol_remain> <movements> <cumul_vol> <flow_rate> <node1> <node2> <total_cumul> *)
+(* Example: #S0 0 6 0 0 0 0 ? ? 0 *)
+
+// Verify response starts with "#S"
+IF LEFT(sCleanResponse, 2) <> '#S' THEN
+    GVL_Serial.stPumpStatus[nStatusAxis].Valid := FALSE;
+    RETURN;
+END_IF
+
+// Extract axis number from position 3 (e.g., "#S0" -> "0")
+nParsedAxis := STRING_TO_INT(MID(sCleanResponse, 1, 3));
+
+// Validate axis is 0 or 1
+IF nParsedAxis < 0 OR nParsedAxis > 1 THEN
+    GVL_Serial.stPumpStatus[nStatusAxis].Valid := FALSE;
+    RETURN;
+END_IF
+
+// Skip header "#Sn " (4 characters) to get data portion
+IF LEN(sCleanResponse) <= 4 THEN
+    GVL_Serial.stPumpStatus[nParsedAxis].Valid := FALSE;
+    RETURN;
+END_IF
+sParseBuffer := RIGHT(sCleanResponse, LEN(sCleanResponse) - 4);
+nFieldIndex := 0;
+
+// Parse each space-delimited field
+WHILE LEN(sParseBuffer) > 0 DO
+    nSpacePos := FIND(sParseBuffer, ' ');
+
+    IF nSpacePos > 0 THEN
+        // Extract token before space
+        sToken := LEFT(sParseBuffer, nSpacePos - 1);
+        // Remove token and space from buffer
+        sParseBuffer := RIGHT(sParseBuffer, LEN(sParseBuffer) - nSpacePos);
+    ELSE
+        // Last token (no more spaces)
+        sToken := sParseBuffer;
+        sParseBuffer := '';
+    END_IF
+
+    // Assign token to appropriate field based on index
+    CASE nFieldIndex OF
+        0: // Error code
+            GVL_Serial.stPumpStatus[nParsedAxis].ErrorCode := STRING_TO_INT(sToken);
+            GVL_Serial.stPumpStatus[nParsedAxis].HasError := (GVL_Serial.stPumpStatus[nParsedAxis].ErrorCode <> 0);
+
+        1: // Current state (1=BUSY, 6=IDLE)
+            GVL_Serial.stPumpStatus[nParsedAxis].CurrentState := STRING_TO_INT(sToken);
+            GVL_Serial.stPumpStatus[nParsedAxis].IsBusy := (GVL_Serial.stPumpStatus[nParsedAxis].CurrentState = 1);
+            GVL_Serial.stPumpStatus[nParsedAxis].IsIdle := (GVL_Serial.stPumpStatus[nParsedAxis].CurrentState = 6);
+
+        2: // Volume remaining (ul) - raw value has offset, calculate corrected
+            GVL_Serial.stPumpStatus[nParsedAxis].VolumeRemaining := STRING_TO_LREAL(sToken);
+            // Correct offset using per-axis full reference point
+            // Axis 0: Full=5000, Axis 1: Full=10000 (configurable in GVL_Serial.rFullReference)
+            // Corrected = Raw + (SyringeSize - FullReference) so Full=SyringeSize, Empty=0
+            GVL_Serial.stPumpStatus[nParsedAxis].VolumeRemainingCorrected :=
+                GVL_Serial.stPumpStatus[nParsedAxis].VolumeRemaining +
+                (GVL_Serial.rSyringeSize[nParsedAxis] - GVL_Serial.rFullReference[nParsedAxis]);
+
+        3: // Syringe movements
+            GVL_Serial.stPumpStatus[nParsedAxis].SyringeMovements := STRING_TO_DINT(sToken);
+
+        4: // Cumulative volume (ul)
+            GVL_Serial.stPumpStatus[nParsedAxis].CumulativeVolume := STRING_TO_LREAL(sToken);
+
+        5: // Current flow rate (ul/min)
+            GVL_Serial.stPumpStatus[nParsedAxis].CurrentFlowRate := STRING_TO_LREAL(sToken);
+
+        6: // Node sensor 1
+            GVL_Serial.stPumpStatus[nParsedAxis].NodeSensor1 := sToken;
+
+        7: // Node sensor 2
+            GVL_Serial.stPumpStatus[nParsedAxis].NodeSensor2 := sToken;
+
+        8: // Total cumulative volume (firmware 1.4.26+)
+            GVL_Serial.stPumpStatus[nParsedAxis].TotalCumulativeVol := STRING_TO_LREAL(sToken);
+    END_CASE
+
+    nFieldIndex := nFieldIndex + 1;
+
+    // Safety limit - don't parse more than expected fields
+    IF nFieldIndex > 9 THEN
+        EXIT;
+    END_IF
+END_WHILE
+
+// Mark as valid if we got at least the required fields (error, state, etc.)
+GVL_Serial.stPumpStatus[nParsedAxis].Valid := (nFieldIndex >= 6);]]></ST>
+      </Implementation>
+    </Action>
   </POU>
 </TcPlcObject>
