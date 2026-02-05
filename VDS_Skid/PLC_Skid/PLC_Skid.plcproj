@@ -23,9 +23,6 @@
     <Compile Include="CyclicTask100ms.TcTTO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ST_ComSerialConfig.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DUTs\ST_Pumps.TcDUT">
       <SubType>Code</SubType>
     </Compile>

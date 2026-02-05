@@ -8,6 +8,12 @@ VAR_GLOBAL
     stOut_PcCom 	AT %Q*  		: PcComOutData; (* linked to the port in the TwinCAT System Manager *)
     RxBufferPcCom       			: ComBuffer; (* Receive data buffer; used with all receive function blocks*)
     TxBufferPcCom       			: ComBuffer; (* Transmit data buffer; used with all receive function blocks*)
+	
+	
+	bEnablePCControl	: BOOL := FALSE;	// Set TRUE to enable automatic A1 heartbeat
+	sCommandString		: STRING := '';	// Manual command string (set before bStartCommand)
+	bStartCommand     	: BOOL;         // Trigger to send manual command via sCommandString
+	
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

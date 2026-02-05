@@ -11,8 +11,15 @@ This is a TwinCAT 3 PLC project for a VDS (Vaccine Distribution System) skid tha
 - **Platform**: TwinCAT 3 (Beckhoff Industrial Automation)
 - **Target**: TwinCAT 3.1.4026.19
 - **Target NetId**: 192.168.43.43.1.1
-- **PLC Task**: PlcTask runs at 100ms cycle time (Priority 20, Port 350)
 - **Language**: IEC 61131-3 Structured Text (ST)
+
+### PLC Tasks
+
+| Task | Cycle Time | Priority | Purpose |
+|------|------------|----------|---------|
+| PlcTask | 10ms | 20 | Main control loop (MAIN.TcPOU) |
+| CyclicTask100ms | 100ms | 1 | PID operations (PRG_PID_CALL) |
+| SerialTask | 2ms | 2 | Serial communication (SerialComm.TcPOU) |
 
 ## Building and Running
 
@@ -58,6 +65,10 @@ The MAIN program runs every PLC cycle and orchestrates all control operations:
 - Pump controls: `DO_wfiPump` (on/off), `AO_wfiPump` (speed 0-10V)
 - Sensors: `AI_wfiPressureSensor` (REAL), `AI_wfiFlowMeter` (DINT)
 
+**GVL_Serial.TcGVL** - Serial communication buffers:
+- `stIn_PcCom` / `stOut_PcCom`: Serial I/O structures
+- `RxBufferPcCom` / `TxBufferPcCom`: Receive/transmit buffers
+
 **Valve Index to I/O Variable Mapping**:
 | Index | Name | I/O Suffix |
 |-------|------|------------|
@@ -86,7 +97,16 @@ The MAIN program runs every PLC cycle and orchestrates all control operations:
 
 **Unit Operation FBs** (VDS_Skid/PLC_Skid/POUs/UnitOp FBs/):
 - `FBUO_OverPressure`: Orchestrates overpressure test sequence - positions valves via FB_ValvePOS, controls pump, maps all valve outputs to IO GVL
+- `FBUO_OverPressure_EX`: Extended variant opening 9 valves [2,3,4,5,6,7,8,9,10]
 - These FBs coordinate multiple valves and equipment for specific process operations
+
+### Serial Communication (SerialComm.TcPOU)
+
+Communicates with Atlas peristaltic pump via USB serial (COM8, 57600 baud, 8N1):
+- **State 0 (IDLE)**: Wait for start command
+- **State 10 (SEND)**: Transmit command string
+- **State 20 (WAIT)**: Receive response with 1s timeout
+- Uses `fbSerialLineControlADS` for port management
 
 ### I/O Hardware Configuration
 
@@ -150,3 +170,4 @@ END_VAR
 - Time literals use format `T#1500MS` for TIME type
 - Comments use `//` for single line
 - Always initialize valves to safe state (closed, State=0) on startup
+- Prefix `st` for structure instances (e.g., `stValves`, `stSerialConfig`)

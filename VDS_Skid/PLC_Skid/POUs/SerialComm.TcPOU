@@ -7,97 +7,150 @@ VAR
 	(* Background ADS Control *)
 	fbSerialLineControlADS 	: SerialLineControlADS;
 	stSerialConfig 			: ComSerialConfig; (* Using the struct above *)
-	
+
 	(* Status Outputs from the block *)
     bPortOpened            : BOOL;
     bError                 : BOOL;
     nErrorID               : UDINT;
-	
+
 	(* Command Logic *)
     fbSend            : SendString;
     fbReceive         : ReceiveString;
-	
+
 	(* Initialization flag *)
     bInitialized           : BOOL := FALSE;
-    
+
     (* Inputs/Outputs *)
 	iState            	: INT := 0;
-    bStartCommand     	: BOOL;         // Trigger this to start the A1 -> S0 sequence
-    sResponse         	: STRING;       // This will hold "S0" when received
+    sResponse         	: STRING;       // Holds the received response
     bReceived         	: BOOL;         // Flashes TRUE when a message arrives
     tonTimeout        	: TON;          // To catch if the device never responds
-	sCommandString		: STRING	:= 'A1$R$L';
 	sCleanResponse		: STRING;
-	
-	
+
+	(* PC Control Heartbeat *)
+	bInPCControl		: BOOL := FALSE;	// TRUE when pump confirmed in PC Control mode
+	bHeartbeatOK		: BOOL := FALSE;	// TRUE if last heartbeat succeeded
+	tonHeartbeat		: TON;				// 2s interval timer for heartbeat
+	bIsHeartbeat		: BOOL := FALSE;	// TRUE if current command is heartbeat (not manual)
+	sActiveCommand		: STRING;			// The command currently being sent
+
+	(* Manual Command Status *)
+	bCommandDone		: BOOL := FALSE;	// Pulses TRUE when manual command completes
+	bCommandTimeout		: BOOL := FALSE;	// TRUE if last manual command timed out
+
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[// 1. Set configuration values (Run only once)
 IF NOT bInitialized THEN
     stSerialConfig.ComPort    := 8;            // Matches your USB adapter
-    stSerialConfig.Baudrate   := 57600;        //
-    stSerialConfig.Parity     := PARITY_NONE;  //
-    stSerialConfig.DataBits   := 8;            //
-    stSerialConfig.StopBits   := STOPBITS_ONE; //
+    stSerialConfig.Baudrate   := 57600;
+    stSerialConfig.Parity     := PARITY_NONE;
+    stSerialConfig.DataBits   := 8;
+    stSerialConfig.StopBits   := STOPBITS_ONE;
 
     // CRITICAL: Prevent USB blocking by enabling these
-    stSerialConfig.DTR        := DTR_CTRL_ENABLE; 
+    stSerialConfig.DTR        := DTR_CTRL_ENABLE;
     stSerialConfig.RTS        := RTS_CTRL_ENABLE;
 
     bInitialized := TRUE;
-	
+END_IF
+
+// Clear PC Control status if disabled
+IF NOT GVL_Serial.bEnablePCControl THEN
+    bInPCControl := FALSE;
+    bHeartbeatOK := FALSE;
+    tonHeartbeat(IN := FALSE);
 END_IF
 
 (* 1. ALWAYS run the background communication first *)
 fbSerialLineControlADS(
-    Connect  := TRUE,                    	(* Replaces 'Execute' from earlier *)
-    SerialCfg:= stSerialConfig,          	(* Replaces 'stConfig' *)
+    Connect  := TRUE,
+    SerialCfg:= stSerialConfig,
     NetId    := '',                      	(* Local CX5330 *)
-    Timeout  := T#5S, 
+    Timeout  := T#5S,
     TxBuffer := GVL_Serial.TxBufferPcCom,
     RxBuffer := GVL_Serial.RxBufferPcCom,
-    PortOpened => bPortOpened,           	(* Replaces 'Ready' *)
+    PortOpened => bPortOpened,
     Error      => bError,
     ErrorID    => nErrorID);
 
-(* 2. Command State Machine *)
+(* 2. Heartbeat timer - runs when PC Control enabled, state machine is idle, and no manual command pending *)
+tonHeartbeat(IN := GVL_Serial.bEnablePCControl AND bPortOpened AND (iState = 0) AND NOT GVL_Serial.bStartCommand, PT := T#2S);
+
+(* 3. Command State Machine *)
 CASE iState OF
-    0: (* IDLE *)
-        IF bStartCommand AND bPortOpened THEN
-            bStartCommand  := FALSE;
-            sResponse      := '';
-            iState         := 10;
+    0: (* IDLE - Check for manual command first, then heartbeat *)
+        bCommandDone := FALSE;  // Clear completion flag
+        // Manual command takes priority over heartbeat
+        IF GVL_Serial.bStartCommand AND bPortOpened THEN
+            GVL_Serial.bStartCommand   := FALSE;
+            bIsHeartbeat    := FALSE;
+            bCommandTimeout := FALSE;
+            sActiveCommand  := CONCAT(GVL_Serial.sCommandString, '$R$L');
+            sResponse       := '';
+            iState          := 10;
+        // Heartbeat fires when timer elapses
+        ELSIF GVL_Serial.bEnablePCControl AND bPortOpened AND tonHeartbeat.Q THEN
+            tonHeartbeat(IN := FALSE); 	// Reset timer
+            bIsHeartbeat    := TRUE;
+            sActiveCommand  := 'A1$R$L';
+            sResponse       := '';
+            iState          := 10;
         END_IF
 
-    10: (* SEND "A1" *)
+    10: (* SEND command *)
         fbSend(
-            SendString := sCommandString, 
+            SendString := sActiveCommand,
             TxBuffer   := GVL_Serial.TxBufferPcCom);
-            
+
         IF NOT fbSend.Busy THEN
             iState := 20;
         END_IF
 
-    20: (* WAIT FOR RESPONSE "S0" *)
-        // Note: Many devices need a suffix like $R$L (CR/LF) to trigger fbReceive
+    20: (* WAIT FOR RESPONSE *)
         fbReceive(
-            Prefix         	:= '', 
-            Suffix 			:= '$R$L', 
-            Timeout        	:= T#1S, 
-            ReceivedString 	:= sResponse, 
-            RxBuffer       	:= GVL_Serial.RxBufferPcCom, 
-            StringReceived 	=> bReceived);
-            
-        tonTimeout(IN := TRUE, PT := T#2s); // 2-second timeout watch
-        
-		IF bReceived THEN
+            Prefix         := '',
+            Suffix         := '$R$L',
+            Timeout        := T#1S,
+            ReceivedString := sResponse,
+            RxBuffer       := GVL_Serial.RxBufferPcCom,
+            StringReceived => bReceived);
+
+        tonTimeout(IN := TRUE, PT := T#2S);
+
+        IF bReceived THEN
             tonTimeout(IN := FALSE);
-            iState := 0; 
-			sCleanResponse := LEFT(sResponse, LEN(sResponse) - 2);
+            // Remove trailing CR/LF from response
+            sCleanResponse := LEFT(sResponse, LEN(sResponse) - 2);
+
+            // Check if this was a heartbeat and update PC Control status
+            IF bIsHeartbeat THEN
+                // A1 response is "#A" - check if we got it
+                IF sCleanResponse = '#A' THEN
+                    bInPCControl := TRUE;
+                    bHeartbeatOK := TRUE;
+                ELSE
+                    bHeartbeatOK := FALSE;
+                END_IF
+            ELSE
+                // Manual command completed successfully
+                bCommandDone := TRUE;
+            END_IF
+            iState := 0;
+
         ELSIF tonTimeout.Q THEN
             tonTimeout(IN := FALSE);
-            iState := 0; (* Handle timeout error here if needed *)
+            // Timeout handling
+            IF bIsHeartbeat THEN
+                bHeartbeatOK := FALSE;
+                bInPCControl := FALSE;  // Lost communication, assume not in PC Control
+            ELSE
+                // Manual command timed out
+                bCommandTimeout := TRUE;
+                bCommandDone := TRUE;
+            END_IF
+            iState := 0;
         END_IF
 END_CASE]]></ST>
     </Implementation>
