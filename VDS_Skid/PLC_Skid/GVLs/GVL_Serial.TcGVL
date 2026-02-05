@@ -13,6 +13,7 @@ VAR_GLOBAL
 	bEnablePCControl	: BOOL := FALSE;	// Set TRUE to enable automatic A1 heartbeat
 	sCommandString		: STRING := '';	// Manual command string (set before bStartCommand)
 	bStartCommand     	: BOOL;         // Trigger to send manual command via sCommandString
+	eSelectedAction 		: EN_AtlasPumpAction := EN_AtlasPumpAction.IDLE;
 	
 END_VAR]]></Declaration>
   </GVL>

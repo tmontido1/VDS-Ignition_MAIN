@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EN_AtlasPumpAction" Id="{47914238-1076-04f0-16cb-edaecf0e8d21}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE EN_AtlasPumpAction :
+(
+    IDLE := 0,
+    STOP_LEFT,
+	STOP_RIGHT,
+    PAUSE,
+    UNPAUSE,
+    EMPTY_LEFT,
+    EMPTY_RIGHT,
+    FILL_LEFT,
+    FILL_RIGHT
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -7,6 +7,8 @@ VAR
 	(* Background ADS Control *)
 	fbSerialLineControlADS 	: SerialLineControlADS;
 	stSerialConfig 			: ComSerialConfig; (* Using the struct above *)
+	PumpCmds				: ST_AtlasPumpCmd;
+	//eSelectedAction 		: EN_AtlasPumpAction := EN_AtlasPumpAction.IDLE;
 
 	(* Status Outputs from the block *)
     bPortOpened            : BOOL;
@@ -22,6 +24,7 @@ VAR
 
     (* Inputs/Outputs *)
 	iState            	: INT := 0;
+	sCommandToSend  	: STRING;
     sResponse         	: STRING;       // Holds the received response
     bReceived         	: BOOL;         // Flashes TRUE when a message arrives
     tonTimeout        	: TON;          // To catch if the device never responds
@@ -33,6 +36,11 @@ VAR
 	tonHeartbeat		: TON;				// 2s interval timer for heartbeat
 	bIsHeartbeat		: BOOL := FALSE;	// TRUE if current command is heartbeat (not manual)
 	sActiveCommand		: STRING;			// The command currently being sent
+
+	(* PC Control Exit *)
+	ftrigPCControl		: F_TRIG;			// Falling edge detection for bEnablePCControl
+	bExitingPCControl	: BOOL := FALSE;	// TRUE while sending A0 exit command
+	bIsExitCommand		: BOOL := FALSE;	// TRUE if current command is A0 exit
 
 	(* Manual Command Status *)
 	bCommandDone		: BOOL := FALSE;	// Pulses TRUE when manual command completes
@@ -56,10 +64,14 @@ IF NOT bInitialized THEN
     bInitialized := TRUE;
 END_IF
 
-// Clear PC Control status if disabled
-IF NOT GVL_Serial.bEnablePCControl THEN
-    bInPCControl := FALSE;
-    bHeartbeatOK := FALSE;
+// Detect falling edge of bEnablePCControl to trigger A0 exit command
+ftrigPCControl(CLK := GVL_Serial.bEnablePCControl);
+IF ftrigPCControl.Q AND bInPCControl THEN
+    bExitingPCControl := TRUE;  // Flag to send A0 command
+END_IF
+
+// Clear heartbeat timer when PC Control disabled
+IF NOT GVL_Serial.bEnablePCControl AND NOT bExitingPCControl THEN
     tonHeartbeat(IN := FALSE);
 END_IF
 
@@ -80,20 +92,53 @@ tonHeartbeat(IN := GVL_Serial.bEnablePCControl AND bPortOpened AND (iState = 0) 
 
 (* 3. Command State Machine *)
 CASE iState OF
-    0: (* IDLE - Check for manual command first, then heartbeat *)
+    0: (* IDLE - Check for exit command, manual command, then heartbeat *)
         bCommandDone := FALSE;  // Clear completion flag
-        // Manual command takes priority over heartbeat
-        IF GVL_Serial.bStartCommand AND bPortOpened THEN
-            GVL_Serial.bStartCommand   := FALSE;
+
+        // A0 Exit command takes highest priority
+        IF bExitingPCControl AND bPortOpened THEN
             bIsHeartbeat    := FALSE;
-            bCommandTimeout := FALSE;
-            sActiveCommand  := CONCAT(GVL_Serial.sCommandString, '$R$L');
+            bIsExitCommand  := TRUE;
+            sActiveCommand  := 'A0$R$L';
             sResponse       := '';
             iState          := 10;
+
+        // Manual command via enum selection
+        ELSIF GVL_Serial.eSelectedAction <> EN_AtlasPumpAction.IDLE AND bPortOpened THEN
+            (* Map the Selection to the specific Struct String *)
+            CASE GVL_Serial.eSelectedAction OF
+                EN_AtlasPumpAction.STOP_LEFT:   sCommandToSend := PumpCmds.StopLeft;
+                EN_AtlasPumpAction.STOP_RIGHT:  sCommandToSend := PumpCmds.StopRight;
+                EN_AtlasPumpAction.PAUSE:       sCommandToSend := PumpCmds.Pause;
+                EN_AtlasPumpAction.UNPAUSE:     sCommandToSend := PumpCmds.Unpause;
+                EN_AtlasPumpAction.EMPTY_LEFT:  sCommandToSend := PumpCmds.EmptyLeft;
+                EN_AtlasPumpAction.EMPTY_RIGHT: sCommandToSend := PumpCmds.EmptyRight;
+                EN_AtlasPumpAction.FILL_LEFT:   sCommandToSend := PumpCmds.FillLeft;
+                EN_AtlasPumpAction.FILL_RIGHT:  sCommandToSend := PumpCmds.FillRight;
+            END_CASE
+            GVL_Serial.eSelectedAction := EN_AtlasPumpAction.IDLE;  // Clear selection
+            bIsHeartbeat    := FALSE;
+            bIsExitCommand  := FALSE;
+            bCommandTimeout := FALSE;
+            sActiveCommand  := CONCAT(sCommandToSend, '$R$L');
+            sResponse       := '';
+            iState          := 10;
+
+        // Manual command via bStartCommand trigger
+        ELSIF GVL_Serial.bStartCommand AND bPortOpened THEN
+            GVL_Serial.bStartCommand := FALSE;
+            bIsHeartbeat    := FALSE;
+            bIsExitCommand  := FALSE;
+            bCommandTimeout := FALSE;
+            sActiveCommand  := CONCAT(sCommandToSend, '$R$L');
+            sResponse       := '';
+            iState          := 10;
+
         // Heartbeat fires when timer elapses
         ELSIF GVL_Serial.bEnablePCControl AND bPortOpened AND tonHeartbeat.Q THEN
             tonHeartbeat(IN := FALSE); 	// Reset timer
             bIsHeartbeat    := TRUE;
+            bIsExitCommand  := FALSE;
             sActiveCommand  := 'A1$R$L';
             sResponse       := '';
             iState          := 10;
@@ -124,8 +169,18 @@ CASE iState OF
             // Remove trailing CR/LF from response
             sCleanResponse := LEFT(sResponse, LEN(sResponse) - 2);
 
-            // Check if this was a heartbeat and update PC Control status
-            IF bIsHeartbeat THEN
+            // Check if this was an exit command (A0)
+            IF bIsExitCommand THEN
+                // A0 response is "#A" - check if we got it
+                IF sCleanResponse = '#A' THEN
+                    bInPCControl := FALSE;
+                    bHeartbeatOK := FALSE;
+                END_IF
+                bExitingPCControl := FALSE;
+                bIsExitCommand := FALSE;
+
+            // Check if this was a heartbeat (A1)
+            ELSIF bIsHeartbeat THEN
                 // A1 response is "#A" - check if we got it
                 IF sCleanResponse = '#A' THEN
                     bInPCControl := TRUE;
@@ -133,6 +188,7 @@ CASE iState OF
                 ELSE
                     bHeartbeatOK := FALSE;
                 END_IF
+
             ELSE
                 // Manual command completed successfully
                 bCommandDone := TRUE;
@@ -142,7 +198,13 @@ CASE iState OF
         ELSIF tonTimeout.Q THEN
             tonTimeout(IN := FALSE);
             // Timeout handling
-            IF bIsHeartbeat THEN
+            IF bIsExitCommand THEN
+                // Exit command timed out - clear flags anyway
+                bExitingPCControl := FALSE;
+                bIsExitCommand := FALSE;
+                bInPCControl := FALSE;
+                bHeartbeatOK := FALSE;
+            ELSIF bIsHeartbeat THEN
                 bHeartbeatOK := FALSE;
                 bInPCControl := FALSE;  // Lost communication, assume not in PC Control
             ELSE
