@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="SerialComm" Id="{c693bfc9-ff64-4bf3-8160-0b021daf2d1e}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM SerialComm
+VAR
+	(* background communication with the PC COM port device *)
+	(* Background ADS Control *)
+	fbSerialLineControlADS 	: SerialLineControlADS;
+	stSerialConfig 			: ComSerialConfig; (* Using the struct above *)
+	
+	(* Status Outputs from the block *)
+    bPortOpened            : BOOL;
+    bError                 : BOOL;
+    nErrorID               : UDINT;
+	
+	(* Command Logic *)
+    fbSend            : SendString;
+    fbReceive         : ReceiveString;
+	
+	(* Initialization flag *)
+    bInitialized           : BOOL := FALSE;
+    
+    (* Inputs/Outputs *)
+	iState            	: INT := 0;
+    bStartCommand     	: BOOL;         // Trigger this to start the A1 -> S0 sequence
+    sResponse         	: STRING;       // This will hold "S0" when received
+    bReceived         	: BOOL;         // Flashes TRUE when a message arrives
+    tonTimeout        	: TON;          // To catch if the device never responds
+	sCommandString		: STRING	:= 'A1$R$L';
+	sCleanResponse		: STRING;
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// 1. Set configuration values (Run only once)
+IF NOT bInitialized THEN
+    stSerialConfig.ComPort    := 8;            // Matches your USB adapter
+    stSerialConfig.Baudrate   := 57600;        //
+    stSerialConfig.Parity     := PARITY_NONE;  //
+    stSerialConfig.DataBits   := 8;            //
+    stSerialConfig.StopBits   := STOPBITS_ONE; //
+
+    // CRITICAL: Prevent USB blocking by enabling these
+    stSerialConfig.DTR        := DTR_CTRL_ENABLE; 
+    stSerialConfig.RTS        := RTS_CTRL_ENABLE;
+
+    bInitialized := TRUE;
+	
+END_IF
+
+(* 1. ALWAYS run the background communication first *)
+fbSerialLineControlADS(
+    Connect  := TRUE,                    	(* Replaces 'Execute' from earlier *)
+    SerialCfg:= stSerialConfig,          	(* Replaces 'stConfig' *)
+    NetId    := '',                      	(* Local CX5330 *)
+    Timeout  := T#5S, 
+    TxBuffer := GVL_Serial.TxBufferPcCom,
+    RxBuffer := GVL_Serial.RxBufferPcCom,
+    PortOpened => bPortOpened,           	(* Replaces 'Ready' *)
+    Error      => bError,
+    ErrorID    => nErrorID);
+
+(* 2. Command State Machine *)
+CASE iState OF
+    0: (* IDLE *)
+        IF bStartCommand AND bPortOpened THEN
+            bStartCommand  := FALSE;
+            sResponse      := '';
+            iState         := 10;
+        END_IF
+
+    10: (* SEND "A1" *)
+        fbSend(
+            SendString := sCommandString, 
+            TxBuffer   := GVL_Serial.TxBufferPcCom);
+            
+        IF NOT fbSend.Busy THEN
+            iState := 20;
+        END_IF
+
+    20: (* WAIT FOR RESPONSE "S0" *)
+        // Note: Many devices need a suffix like $R$L (CR/LF) to trigger fbReceive
+        fbReceive(
+            Prefix         	:= '', 
+            Suffix 			:= '$R$L', 
+            Timeout        	:= T#1S, 
+            ReceivedString 	:= sResponse, 
+            RxBuffer       	:= GVL_Serial.RxBufferPcCom, 
+            StringReceived 	=> bReceived);
+            
+        tonTimeout(IN := TRUE, PT := T#2s); // 2-second timeout watch
+        
+		IF bReceived THEN
+            tonTimeout(IN := FALSE);
+            iState := 0; 
+			sCleanResponse := LEFT(sResponse, LEN(sResponse) - 2);
+        ELSIF tonTimeout.Q THEN
+            tonTimeout(IN := FALSE);
+            iState := 0; (* Handle timeout error here if needed *)
+        END_IF
+END_CASE]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

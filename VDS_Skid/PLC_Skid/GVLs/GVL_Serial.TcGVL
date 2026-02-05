@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <GVL Name="GVL_Serial" Id="{cd4cba85-6bd6-4c67-aeb1-93d6d83c8d4c}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+    (* I/O variables for a PC-COM port *)
+    stIn_PcCom 		AT %I*  		: PcComInData; (* linked to the port in the TwinCAT System Manager *)
+    stOut_PcCom 	AT %Q*  		: PcComOutData; (* linked to the port in the TwinCAT System Manager *)
+    RxBufferPcCom       			: ComBuffer; (* Receive data buffer; used with all receive function blocks*)
+    TxBufferPcCom       			: ComBuffer; (* Transmit data buffer; used with all receive function blocks*)
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

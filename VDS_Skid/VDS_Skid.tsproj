@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
-<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.19">
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.20">
 	<Project ProjectGUID="{42BEA4A0-2A5D-42B0-8B5D-0AA58ACA7AF2}" TargetNetId="192.168.43.43.1.1" Target64Bit="true" ShowHideConfigurations="#x347">
 		<System>
 			<Settings MaxCpus="2" NonWinCpus="1">
-				<Cpu CpuId="1"/>
+				<Cpu CpuId="1" BaseTime="2000"/>
 			</Settings>
 			<Licenses>
 				<Target>
-					<ManualSelect>{FDE02854-39A7-440C-9EAE-C234A16A3CED}</ManualSelect>
 					<ManualSelect>{796D380F-D49E-4C0C-A05F-500052FAC883}</ManualSelect>
+					<ManualSelect>{FDE02854-39A7-440C-9EAE-C234A16A3CED}</ManualSelect>
 					<ManualSelect>{BDCC0070-42D5-49AE-ABF1-1D4434813D60}</ManualSelect>
 				</Target>
 			</Licenses>
@@ -18,6 +18,9 @@
 				</Task>
 				<Task Id="4" Priority="1" CycleTime="1000000" AmsPort="351" AdtTasks="true">
 					<Name>CyclicTask100ms</Name>
+				</Task>
+				<Task Id="5" Priority="2" CycleTime="20000" AmsPort="352" AdtTasks="true">
+					<Name>SerialTask</Name>
 				</Task>
 			</Tasks>
 		</System>
@@ -35,7 +38,7 @@
 		</Io>
 	</Project>
 	<Mappings>
-		<MappingInfo Identifier="{00000000-2001-0850-0120-500810000403}" Id="#x02030010"/>
-		<MappingInfo Identifier="{00000000-2001-0850-0120-500830000403}" Id="#x02030020"/>
+		<MappingInfo Identifier="{00000000-2001-0850-0220-500810000403}" Id="#x02030010"/>
+		<MappingInfo Identifier="{00000000-2001-0850-0220-500830000403}" Id="#x02030020"/>
 	</Mappings>
 </TcSmProject>

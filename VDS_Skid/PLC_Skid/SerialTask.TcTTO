@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <Task Name="SerialTask" Id="{b8aeebc2-d274-4107-8f70-81e96d02ea49}">
+    <!--CycleTime in micro seconds.-->
+    <CycleTime>2000</CycleTime>
+    <Priority>2</Priority>
+    <PouCall>
+      <Name>SerialComm</Name>
+    </PouCall>
+    <TaskFBGuid>{e6248ebb-b599-4981-a75c-45463f46c9b7}</TaskFBGuid>
+    <Fb_init>{ade48446-805f-42b4-8663-59d31cab1d4e}</Fb_init>
+    <Fb_exit>{1ed7b3e1-9e97-4131-be45-7cf9a0fa796d}</Fb_exit>
+    <CycleUpdate>{26d34af0-7d19-41f2-ba76-d0931841fc11}</CycleUpdate>
+    <PostCycleUpdate>{d2e04ed8-168a-4533-b911-86c9e7bd83b0}</PostCycleUpdate>
+  </Task>
+</TcPlcObject>

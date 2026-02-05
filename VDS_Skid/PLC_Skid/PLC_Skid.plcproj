@@ -23,6 +23,9 @@
     <Compile Include="CyclicTask100ms.TcTTO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\ST_ComSerialConfig.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\ST_Pumps.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -30,6 +33,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GVLs\GVL.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="GVLs\GVL_Serial.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
     </Compile>
@@ -61,6 +68,9 @@
     <Compile Include="POUs\PRG_PID_CALL.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\SerialComm.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\Status FBs\FB_CheckValveInputs.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -68,6 +78,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\UnitOp FBs\FBUO_OverPressure_EX.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SerialTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
@@ -84,6 +97,10 @@
     <PlaceholderReference Include="Tc2_ControllerToolbox">
       <DefaultResolution>Tc2_ControllerToolbox, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_ControllerToolbox</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_SerialCom">
+      <DefaultResolution>Tc2_SerialCom, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_SerialCom</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Standard">
       <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
@@ -107,8 +124,8 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-        <Data>
-          <o xml:space="preserve" t="OptionKey">
+  <Data>
+    <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
@@ -166,6 +183,12 @@
             <v>410,5410</v>
           </d>
         </o>
+        <v>{eeeeeeee-3909-4298-8022-501ac3238667}</v>
+        <o>
+          <v n="Name">"{eeeeeeee-3909-4298-8022-501ac3238667}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
         <v>{F66C7017-BDD8-4114-926C-81D6D687E35F}</v>
         <o>
           <v n="Name">"{F66C7017-BDD8-4114-926C-81D6D687E35F}"</v>
@@ -178,14 +201,14 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-        </Data>
-        <TypeList>
-          <Type n="Boolean">System.Boolean</Type>
-          <Type n="Hashtable">System.Collections.Hashtable</Type>
-          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-          <Type n="String">System.String</Type>
-        </TypeList>
-      </XmlArchive>
+  </Data>
+  <TypeList>
+    <Type n="Boolean">System.Boolean</Type>
+    <Type n="Hashtable">System.Collections.Hashtable</Type>
+    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+    <Type n="String">System.String</Type>
+  </TypeList>
+</XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>
