@@ -58,12 +58,14 @@ VAR
 //----------------------------INIT Function Blocks----------------------------------//
 	fbSyringeSetup : FBUO_OPPump_SyringeSetup;
 	fbAcetonePrime : FBUO_OPPump_AcetonePrime;
-//----------------------------------------------------------------------------------//	
-	
+	fbFlowFormation : FBUO_OPFlowFormation;
+//----------------------------------------------------------------------------------//
+
 ///---------------------Organic Phase Setup ---------------------------------------//
-OPActive					: BOOL	:= FALSE;	
+OPActive					: BOOL	:= FALSE;
 bStartSyringeSetup			: BOOL	:= FALSE;	// Start Syringe Setup Routine
 bStartActenePriming			: BOOL	:= FALSE;	// Start Acetone Priming Routine
+bStartFlowFormation			: BOOL	:= FALSE;	// Start/Stop Continuous Flow Formation
 nAcetoneCycles				: INT	:= 2;
 nAcetoneCycle				: INT;	
 //----------------------------------------------------------------------------------//
@@ -100,6 +102,8 @@ IF NOT Initialized THEN
 		stPressureSensors[i].ID := i;
 		stPressureSensors[i].RawValue := 0.0;
 		stPressureSensors[i].ScaledValue := 0.0;
+		stPressureSensors[i].FilteredValue := 0.0;
+		stPressureSensors[i].FilterTimeConst := 0.1;
 		stPressureSensors[i].InputMin := 4.0;
 		stPressureSensors[i].InputMax := 20.0;
 		stPressureSensors[i].OutputMin := 0.0;
@@ -149,8 +153,8 @@ unitOp_OverPressure(
 //--------------------------------------------------------------------------------------------//
 
 //---------------------------------- Atlas Syringe Setup--------------------------------------//
+GVL_Serial.bEnablePCControl := OPActive;
 IF OPActive THEN
-	GVL_Serial.bEnablePCControl := TRUE;
   fbSyringeSetup(
       bEnable := TRUE,
       bStart  := bStartSyringeSetup
@@ -165,6 +169,12 @@ IF OPActive THEN
   );
   // Monitor progress
   nAcetoneCycle := fbAcetonePrime.nCurrentCycle;  // Shows 1, then 2
+
+//---------------------------------- Continuous Flow Formation --------------------------------//
+  fbFlowFormation(
+      bEnable := TRUE,
+      bStart  := bStartFlowFormation
+  );
 END_IF
 //--------------------------------------------------------------------------------------------// 
 
@@ -213,9 +223,9 @@ wfi_MassFlowAvg100(
 
 
 //------------------------------- Pump Control ------------------------------------//
-// Map pressure sensor readings to pumps for overpressure protection
-stPumps[1].PressureValue := stPressureSensors[1].ScaledValue;		// WFI Pump <- WFI Pressure
-stPumps[2].PressureValue := stPressureSensors[2].ScaledValue;		// Suspension Pump <- Suspension Pressure
+// Map filtered pressure readings to pumps for overpressure protection
+stPumps[1].PressureValue := stPressureSensors[1].FilteredValue;	// WFI Pump <- WFI Pressure
+stPumps[2].PressureValue := stPressureSensors[2].FilteredValue;	// Suspension Pump <- Suspension Pressure
 pumpCtrl(fbPumps := stPumps);
 // WFI Pump I/O Mapping (index 1)
 IO.DO_wfiPump := stPumps[1].DO1;

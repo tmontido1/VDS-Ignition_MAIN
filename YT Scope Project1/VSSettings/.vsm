@@ -14,6 +14,42 @@
           <FileName></FileName>
           <Children>
             <Node>
+              <Title>AO1</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>avg10WFI_MassFlowRate</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>avg30WFI_MassFlowRate</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>avg100WFI_MassFlowRate</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>DO1</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>FilteredValue</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
               <Title>hOP_PumpActive</Title>
               <Expanded>False</Expanded>
               <FileName></FileName>
@@ -21,6 +57,12 @@
             </Node>
             <Node>
               <Title>ScaledValue</Title>
+              <Expanded>False</Expanded>
+              <FileName></FileName>
+              <Children />
+            </Node>
+            <Node>
+              <Title>ScaledValue (1)</Title>
               <Expanded>False</Expanded>
               <FileName></FileName>
               <Children />
@@ -34,9 +76,34 @@
           <Children>
             <Node>
               <Title>Axis Group</Title>
-              <Expanded>False</Expanded>
+              <Expanded>True</Expanded>
               <FileName></FileName>
-              <Children />
+              <Children>
+                <Node>
+                  <Title>ScaledValue (1)</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+                <Node>
+                  <Title>avg10WFI_MassFlowRate</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+                <Node>
+                  <Title>avg30WFI_MassFlowRate</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+                <Node>
+                  <Title>avg100WFI_MassFlowRate</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+              </Children>
             </Node>
             <Node>
               <Title>Axis Group (1)</Title>
@@ -49,6 +116,12 @@
                   <FileName></FileName>
                   <Children />
                 </Node>
+                <Node>
+                  <Title>FilteredValue</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
               </Children>
             </Node>
             <Node>
@@ -57,7 +130,13 @@
               <FileName></FileName>
               <Children>
                 <Node>
-                  <Title>hOP_PumpActive</Title>
+                  <Title>DO1</Title>
+                  <Expanded>False</Expanded>
+                  <FileName></FileName>
+                  <Children />
+                </Node>
+                <Node>
+                  <Title>AO1</Title>
                   <Expanded>False</Expanded>
                   <FileName></FileName>
                   <Children />

@@ -117,20 +117,21 @@ CASE iState OF
         ELSIF GVL_Serial.eSelectedAction <> EN_AtlasPumpAction.IDLE AND bPortOpened THEN
             (* Map the Selection to the specific Struct String *)
             CASE GVL_Serial.eSelectedAction OF
-                EN_AtlasPumpAction.STOP_LEFT:     sCommandToSend := PumpCmds.StopLeft;
-                EN_AtlasPumpAction.STOP_RIGHT:    sCommandToSend := PumpCmds.StopRight;
-                EN_AtlasPumpAction.PAUSE_LEFT:    sCommandToSend := PumpCmds.PauseLeft;
-                EN_AtlasPumpAction.PAUSE_RIGHT:   sCommandToSend := PumpCmds.PauseRight;
-                EN_AtlasPumpAction.UNPAUSE_LEFT:  sCommandToSend := PumpCmds.UnpauseLeft;
-                EN_AtlasPumpAction.UNPAUSE_RIGHT: sCommandToSend := PumpCmds.UnpauseRight;
-                EN_AtlasPumpAction.EMPTY_LEFT_FAST:    sCommandToSend := PumpCmds.EmptyLeft_FAST;
-                EN_AtlasPumpAction.EMPTY_RIGHT_FAST:   sCommandToSend := PumpCmds.EmptyRight_FAST;
-                EN_AtlasPumpAction.FILL_LEFT_FAST:     sCommandToSend := PumpCmds.FillLeft_FAST;
-                EN_AtlasPumpAction.FILL_RIGHT_FAST:    sCommandToSend := PumpCmds.FillRight_FAST;
-				EN_AtlasPumpAction.EMPTY_LEFT_PRIME:    sCommandToSend := PumpCmds.EmptyLeft_PRIME;
-                EN_AtlasPumpAction.EMPTY_RIGHT_PRIME:   sCommandToSend := PumpCmds.EmptyRight_PRIME;
-                EN_AtlasPumpAction.FILL_LEFT_PRIME:     sCommandToSend := PumpCmds.FillLeft_PRIME;
-                EN_AtlasPumpAction.FILL_RIGHT_PRIME:    sCommandToSend := PumpCmds.FillRight_PRIME;
+                EN_AtlasPumpAction.STOP_LEFT			:sCommandToSend := PumpCmds.StopLeft;
+                EN_AtlasPumpAction.STOP_RIGHT			:sCommandToSend := PumpCmds.StopRight;
+                EN_AtlasPumpAction.PAUSE_LEFT			:sCommandToSend := PumpCmds.PauseLeft;
+                EN_AtlasPumpAction.PAUSE_RIGHT			:sCommandToSend := PumpCmds.PauseRight;
+                EN_AtlasPumpAction.UNPAUSE_LEFT			:sCommandToSend := PumpCmds.UnpauseLeft;
+                EN_AtlasPumpAction.UNPAUSE_RIGHT		:sCommandToSend := PumpCmds.UnpauseRight;
+                EN_AtlasPumpAction.EMPTY_LEFT_FAST		:sCommandToSend := PumpCmds.EmptyLeft_FAST;
+                EN_AtlasPumpAction.EMPTY_RIGHT_FAST		:sCommandToSend := PumpCmds.EmptyRight_FAST;
+                EN_AtlasPumpAction.FILL_LEFT_FAST		:sCommandToSend := PumpCmds.FillLeft_FAST;
+                EN_AtlasPumpAction.FILL_RIGHT_FAST		:sCommandToSend := PumpCmds.FillRight_FAST;
+				EN_AtlasPumpAction.EMPTY_LEFT_PRIME		:sCommandToSend := PumpCmds.EmptyLeft_PRIME;
+                EN_AtlasPumpAction.EMPTY_RIGHT_PRIME	:sCommandToSend := PumpCmds.EmptyRight_PRIME;
+                EN_AtlasPumpAction.FILL_LEFT_PRIME		:sCommandToSend := PumpCmds.FillLeft_PRIME;
+                EN_AtlasPumpAction.FILL_RIGHT_PRIME		:sCommandToSend := PumpCmds.FillRight_PRIME;
+				EN_AtlasPumpAction.CONTINUOUS			:sCommandToSend := PumpCmds.CONTINUOUS;
             END_CASE
             GVL_Serial.eSelectedAction := EN_AtlasPumpAction.IDLE;  // Clear selection
             bIsEntryCommand  := FALSE;

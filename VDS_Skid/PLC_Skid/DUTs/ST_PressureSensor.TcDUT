@@ -6,7 +6,9 @@ STRUCT
 	Name : STRING[20];			// Sensor name
 	ID : INT;					// Sensor index
 	RawValue : REAL;			// Raw 4-20mA input from IO
-	ScaledValue : REAL;			// Scaled engineering units (computed by FB)
+	ScaledValue : REAL;			// Scaled engineering units, unfiltered (computed by FB)
+	FilteredValue : REAL;		// Filtered scaled value (used for control/protection)
+	FilterTimeConst : REAL;		// Low-pass filter time constant in seconds (0.0 = no filtering)
 	InputMin : REAL;			// Raw input minimum (e.g., 4.0)
 	InputMax : REAL;			// Raw input maximum (e.g., 20.0)
 	OutputMin : REAL;			// Scaled output minimum (e.g., 0.0)

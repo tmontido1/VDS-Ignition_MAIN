@@ -12,14 +12,15 @@ STRUCT
 	UnpauseRight     : STRING := 'U1';
     (* 15ml/min Port 2 Commands *)
     (* Format: [Command][Volume/Rate] [Port] *)
-    EmptyLeft_FAST   : STRING := 'E0 70000 2';
-    EmptyRight_FAST  : STRING := 'E1 70000 2';
-    FillLeft_FAST    : STRING := 'F0 70000 1';
-    FillRight_FAST   : STRING := 'F1 70000 1';
-	EmptyLeft_PRIME   : STRING := 'E0 40000 2';
-    EmptyRight_PRIME  : STRING := 'E1 40000 2';
-    FillLeft_PRIME    : STRING := 'F0 40000 1';
-    FillRight_PRIME   : STRING := 'F1 40000 1';
+    EmptyLeft_FAST   	: STRING := 'E0 70000 2';
+    EmptyRight_FAST  	: STRING := 'E1 70000 2';
+    FillLeft_FAST    	: STRING := 'F0 70000 1';
+    FillRight_FAST		: STRING := 'F1 70000 1';
+	EmptyLeft_PRIME   	: STRING := 'E0 40000 2';
+    EmptyRight_PRIME  	: STRING := 'E1 40000 2';
+    FillLeft_PRIME    	: STRING := 'F0 40000 1';
+    FillRight_PRIME   	: STRING := 'F1 40000 1';
+	CONTINUOUS		  	: STRING := 'C 35000 2 1 0 0';
 END_STRUCT
 END_TYPE
 ]]></Declaration>

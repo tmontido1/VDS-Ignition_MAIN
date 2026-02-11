@@ -62,6 +62,9 @@
     <Compile Include="POUs\General FBs\FB_MovingAverage.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\General FBs\FB_FirstOrderLP.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\General FBs\FB_MassFlowMonitor.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -96,6 +99,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\UnitOp FBs\FBUO_OPPUMP_AcetonePrime.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\UnitOp FBs\FBUO_OPFlowFormation.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\UnitOp FBs\FBUO_OPPump_SyringeSetup.TcPOU">

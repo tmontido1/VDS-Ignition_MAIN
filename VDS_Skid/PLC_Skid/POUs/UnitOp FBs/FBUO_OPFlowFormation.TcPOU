@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FBUO_OPFlowFormation" Id="{a1b2c3d4-1234-5678-9abc-def012345678}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FBUO_OPFlowFormation
+VAR_INPUT
+	bEnable         : BOOL;     // Enable the function block
+	bStart          : BOOL;     // TRUE = run continuous flow, FALSE = stop
+END_VAR
+
+VAR_OUTPUT
+	bBusy           : BOOL;     // State machine active (starting or stopping)
+	bRunning        : BOOL;     // TRUE when pump is actively in continuous flow
+	bError          : BOOL;     // Error occurred
+	nCurrentStep    : INT;      // Current step for diagnostics
+END_VAR
+
+VAR
+	nState          : INT := 0;
+	rtrigStart      : R_TRIG;   // Detect rising edge of bStart
+	ftrigStart      : F_TRIG;   // Detect falling edge of bStart
+	tonDelay        : TON;      // Delay between stop commands
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* FBUO_OPFlowFormation
+   Purpose: Start/stop continuous flow on the Atlas pump
+   - Rising edge of bStart: sends CONTINUOUS command
+   - Falling edge of bStart: sends STOP_LEFT, waits 100ms, sends STOP_RIGHT
+   - The Atlas pump firmware handles all syringe alternation internally
+*)
+
+// Edge detection
+rtrigStart(CLK := bStart AND bEnable);
+ftrigStart(CLK := bStart AND bEnable);
+
+// Reset when disabled
+IF NOT bEnable THEN
+	nState := 0;
+	bBusy := FALSE;
+	bRunning := FALSE;
+	bError := FALSE;
+	nCurrentStep := 0;
+	tonDelay(IN := FALSE);
+	RETURN;
+END_IF
+
+CASE nState OF
+
+	0: // IDLE - wait for start
+		nCurrentStep := 0;
+		bBusy := FALSE;
+		bError := FALSE;
+
+		IF rtrigStart.Q THEN
+			bBusy := TRUE;
+			nState := 10;
+		END_IF
+
+	// ===== START PHASE =====
+
+	10: // SEND_CONTINUOUS - send continuous flow command
+		nCurrentStep := 1;
+		GVL_Serial.eSelectedAction := EN_AtlasPumpAction.CONTINUOUS;
+		nState := 15;
+
+	15: // WAIT_ACK - wait for command to be processed by SerialComm
+		IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+			bBusy := FALSE;
+			bRunning := TRUE;
+			nState := 20;
+		END_IF
+
+	// ===== RUNNING PHASE =====
+
+	20: // RUNNING - pump is in continuous flow, wait for stop signal
+		nCurrentStep := 2;
+
+		IF ftrigStart.Q THEN
+			bRunning := FALSE;
+			bBusy := TRUE;
+			nState := 30;
+		END_IF
+
+	// ===== STOP PHASE =====
+
+	30: // STOP_LEFT - send stop command for axis 0
+		nCurrentStep := 3;
+		GVL_Serial.eSelectedAction := EN_AtlasPumpAction.STOP_LEFT;
+		nState := 35;
+
+	35: // WAIT_STOP_LEFT_ACK
+		IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+			tonDelay(IN := FALSE);
+			nState := 40;
+		END_IF
+
+	40: // STOP_DELAY - 100ms between stop commands to avoid serial contention
+		tonDelay(IN := TRUE, PT := T#100MS);
+		IF tonDelay.Q THEN
+			tonDelay(IN := FALSE);
+			nState := 50;
+		END_IF
+
+	50: // STOP_RIGHT - send stop command for axis 1
+		nCurrentStep := 4;
+		GVL_Serial.eSelectedAction := EN_AtlasPumpAction.STOP_RIGHT;
+		nState := 55;
+
+	55: // WAIT_STOP_RIGHT_ACK
+		IF GVL_Serial.eSelectedAction = EN_AtlasPumpAction.IDLE THEN
+			bBusy := FALSE;
+			nState := 0;
+		END_IF
+
+END_CASE]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

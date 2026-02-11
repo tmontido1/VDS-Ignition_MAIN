@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_FirstOrderLP" Id="{f6a7b8c9-0d1e-2f3a-4b5c-6d7e8f9a0b1c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_FirstOrderLP
+VAR_INPUT
+	fbInput : REAL;					// Raw input value
+	fbTimeConst : REAL;				// Filter time constant in seconds (e.g., 0.1 = 100ms)
+	fbCycleTime : REAL := 0.01;		// Task cycle time in seconds (default 10ms)
+END_VAR
+
+VAR_OUTPUT
+	fbOutput : REAL;				// Filtered output value
+END_VAR
+
+VAR
+	alpha : REAL;					// Computed filter coefficient
+	bInitialized : BOOL;			// First-call flag
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// First-Order Low-Pass Filter (Exponential Moving Average)
+// Transfer: Output[n] = Output[n-1] + Alpha * (Input[n] - Output[n-1])
+// Alpha = CycleTime / (TimeConst + CycleTime)
+
+// Initialize output to first input value to avoid startup transient
+IF NOT bInitialized THEN
+	fbOutput := fbInput;
+	bInitialized := TRUE;
+	RETURN;
+END_IF
+
+// Bypass filter if time constant is zero or negative
+IF fbTimeConst <= 0.0 THEN
+	fbOutput := fbInput;
+	RETURN;
+END_IF
+
+// Compute alpha and apply filter
+alpha := fbCycleTime / (fbTimeConst + fbCycleTime);
+fbOutput := fbOutput + alpha * (fbInput - fbOutput);]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

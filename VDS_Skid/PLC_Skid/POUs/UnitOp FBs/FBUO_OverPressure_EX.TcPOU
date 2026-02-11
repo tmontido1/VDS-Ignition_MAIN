@@ -15,9 +15,9 @@ VAR_OUTPUT
 	
 END_VAR
 VAR
-    valveIndexOpen : ARRAY[1..GVL.valveCount] OF INT := [2,3,4,5,6,7,8,9,10];
+    valveIndexOpen : ARRAY[1..GVL.valveCount] OF INT := [2,4,7,8,9,10];
 	numValvesToOpen : INT := 10;
-	valveIndexClose : ARRAY[1..GVL.valveCount] OF INT := [2,3,4,10,9,8,7,6,5];
+	valveIndexClose : ARRAY[1..GVL.valveCount] OF INT := [2,4,7,8,9,10];
 	numValvesToClose : INT := 10;
     targetState : INT;
     targetOpenClose : BOOL;
