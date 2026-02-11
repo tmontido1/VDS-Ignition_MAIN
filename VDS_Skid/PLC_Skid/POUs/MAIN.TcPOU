@@ -72,8 +72,8 @@ END_VAR
 
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[//-----------------------------Process Code ----------------------------------------//
-// Initialization
+      <ST><![CDATA[//------------------------------------Process Code ----------------------------------------//
+//---------------------------------- Initialization----------------------------------------//
 IF NOT Initialized THEN
     FOR i := 1 TO gvl.valveCount DO
         stValves[i].Name := GVL.sValveNames[i]; // Assign valve names
@@ -118,10 +118,11 @@ IF NOT Initialized THEN
 	END_FOR
     Initialized := TRUE;
 END_IF
-
 CycleCount := CycleCount + 1;
 
-//------------------------------ Check Valve Inputs Every Cycle ------------------------------//
+//--------------------------------------------------------------------------------------------//
+
+//------------------------------ Valve Position Monitoring -----------------------------------//
 systemCheck_Valves(
 	fbCheckProcessState := TRUE, 
 	fbValves 			:= stValves);
@@ -144,15 +145,16 @@ unitOp_OverPressure(
 	fbPumpSpeed				:= hOP_PumpSpeed);
 //--------------------------------------------------------------------------------------------//
 
-
+//---------------------------------- Atlas Syringe Setup--------------------------------------//
 IF OPActive THEN
 	GVL_Serial.bEnablePCControl := TRUE;
   fbSyringeSetup(
       bEnable := TRUE,
       bStart  := bStartSyringeSetup
   );
-  
-  
+//--------------------------------------------------------------------------------------------//  
+
+//---------------------------------- Acetone Priming -----------------------------------------//
   fbAcetonePrime(
       bEnable            := TRUE,
       bStartAcetonePrime := bStartActenePriming,
@@ -161,9 +163,9 @@ IF OPActive THEN
   // Monitor progress
   nAcetoneCycle := fbAcetonePrime.nCurrentCycle;  // Shows 1, then 2
 END_IF
+//--------------------------------------------------------------------------------------------// 
 
 //OP Routine Status
-
   IF fbSyringeSetup.bDone THEN
       // Syringes at 12.5ml - ready for operator to attach
   END_IF
@@ -172,18 +174,15 @@ END_IF
       // Priming complete, syringes are empty
   END_IF
 
-
-
-
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
+//------------------------------ Pressure Monitoring ----------------------------------------//
 // Pressure Sensor I/O Mapping
 stPressureSensors[1].RawValue := IO.AI_wfiPressureSensor;
 // stPressureSensors[2].RawValue := IO.AI_suspPressureSensor;       // uncomment when wired
 // stPressureSensors[3].RawValue := IO.AI_tffOutletPressureSensor;  // uncomment when wired
 pressureMonitor(fbSensors := stPressureSensors);
-////////////////////////////////////////////////////////////////////////////////////////////////
-					
+//---------------------------------------------------------------------------------------------//
+
+//----------------------------- Mass Flow Monitoring -----------------------------------------------------//					
 // Mass Flow Sensor I/O Mapping (DINT to REAL conversion at boundary)
 stMassFlowSensors[1].RawValue := DINT_TO_REAL(IO.AI_wfiFlowMeter);
 // stMassFlowSensors[2].RawValue := DINT_TO_REAL(IO.AI_suspMassFlowMeter);     // uncomment when wired
@@ -207,30 +206,30 @@ wfi_MassFlowAvg100(
 	fbInputValue := stMassFlowSensors[1].ScaledValue,
 	fbSampleSize := 100,
 	fbAverageValue => avg100WFI_MassFlowRate);
+//-----------------------------------------------------------------------------------------------------//
 
-//------------------------------- Pump Control ------------------------------------//
+
+//------------------------------- Pump Control (Development, to be added to Routine) ------------------------------------//
 pumpCtrl(fbPumps := stPumps);
-
 // WFI Pump I/O Mapping (index 1)
 IO.DO_wfiPump := stPumps[1].DO1;
 IO.AO_wfiPump := stPumps[1].AO1;
 // Suspension Pump I/O Mapping (index 2) - uncomment when I/O available
 // IO.DO_suspPump := stPumps[2].DO1;
 // IO.AO_suspPump := stPumps[2].AO1;
-//----------------------------------------------------------------------------------//
+//-----------------------------------------------------------------------------------------------------//
 
 
-//////////////////////////////////////////
-//////////////////////////////////////////
-//////////////////////////////////////////
 
 
+//------------------------------- Valve Init Function (To be refined later) ------------------------------------//
 // Correct function block call with inputs
 varPulse(Valve := outputDO1, pulseTime := tPulseTime);
 // Assign output to global I/O
 IO.DO1_dilutionSV := outputDO1;
+//-----------------------------------------------------------------------------------------------------//
 
-//-----------------------------Process Code ----------------------------------------//
+//-----------------------------Process Code END ----------------------------------------//
 ]]></ST>
     </Implementation>
   </POU>
