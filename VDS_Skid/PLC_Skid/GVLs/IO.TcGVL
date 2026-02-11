@@ -10,9 +10,13 @@ VAR_GLOBAL
 	DO1 AT %Q* : BOOL;
 //---------------------------------------------------------------------------------------------------------------//
 	
-//---------------------------------- PUMP MAPPING -------------------------------------------------//	
+//---------------------------------- PUMP MAPPING -------------------------------------------------//
+	// WFI Pump (index 1)
 	DO_wfiPump AT %Q* : BOOL;			// Digital Output for turning pump on and off
-	AO_wfiPump AT %Q* : REAL;			// Analog Ouput for pump speed control
+	AO_wfiPump AT %Q* : REAL;			// Analog Output for pump speed control
+	// Suspension Pump (index 2) - not yet connected
+	// DO_suspPump AT %Q* : BOOL;		// Digital Output for turning pump on and off
+	// AO_suspPump AT %Q* : REAL;		// Analog Output for pump speed control
 //-------------------------------------------------------------------------------------------------//
 
 	AI_wfiPressureSensor AT %I* : REAL;			// Analog Ouput for pump speed control

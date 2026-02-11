@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_PumpCTRL" Id="{a1b2c3d4-e5f6-7890-abcd-ef1234567890}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PumpCTRL
+VAR_INPUT
+END_VAR
+VAR_IN_OUT
+    fbPumps : ARRAY[1..GVL.pumpCount] OF ST_Pumps;   // Array of pump structures
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+    i : INT;                                  // Internal loop variable
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Pump control - open loop voltage command
+FOR i := 1 TO GVL.pumpCount DO
+    IF fbPumps[i].IsOn THEN
+        fbPumps[i].DO1 := TRUE;
+        fbPumps[i].AO1 := LIMIT(0.0, fbPumps[i].CMDVoltage, 10.0);
+    ELSE
+        fbPumps[i].DO1 := FALSE;
+        fbPumps[i].AO1 := 0.0;
+    END_IF
+END_FOR]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

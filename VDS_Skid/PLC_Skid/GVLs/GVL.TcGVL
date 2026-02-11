@@ -14,6 +14,10 @@
 														"Formation Manifold",
 														"Suspension Manifold"];	
 														
+pumpCount : INT := 2;
+sPumpNames : ARRAY[1..pumpCount] OF WSTRING := 	["WFI Pump",
+													"Suspension Pump"];
+
 stValveID : ARRAY[1..valveCount] OF INT := 	[1, 	// Dilution Selector
 											 2, 		// WFI Selector, 
 											 3, 		// Formation Drain, 

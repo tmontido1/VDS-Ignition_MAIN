@@ -65,6 +65,9 @@
     <Compile Include="POUs\General FBs\FB_ValvePOS.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\General FBs\FB_PumpCTRL.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\General FBs\FB_valveCTRL.TcPOU">
       <SubType>Code</SubType>
     </Compile>

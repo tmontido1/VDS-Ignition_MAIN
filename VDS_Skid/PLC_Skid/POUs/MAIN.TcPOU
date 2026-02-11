@@ -12,14 +12,16 @@ VAR
 
 
 //--------------------------------- Struct Init ------------------------------------//
-// Constant array of valve names	
+// Constant array of valve names
 	stValves : ARRAY[1..GVL.valveCount] OF ST_Valves;
+	stPumps : ARRAY[1..GVL.pumpCount] OF ST_Pumps;
 //----------------------------------------------------------------------------------//
 
 
 //----------------------------INIT Function Blocks----------------------------------//
 	systemCheck_Valves : FB_CheckValveInputs;
-	valveCtrl : FB_valveCTRL; // Function block instance
+	valveCtrl : FB_valveCTRL;
+	pumpCtrl : FB_PumpCTRL;
 	varPulse : FB_PulseValve;   // Instance of the function block
 	unitOp_OverPressure : FBUO_OverPressure;
 	unitOp_OverPressureEX : FBUO_OverPressure_EX;
@@ -32,8 +34,6 @@ VAR
 //---------------------------- General Variables -----------------------------------//
 	outputDO1 : BOOL;           // Local output variable
     tPulseTime : TIME := T#1000MS; // Pulse duration
-	outputDO3 : BOOL := FALSE;
-	outputAO3 : REAL := 1;
 	rawWFIPressure : REAL;
 	scaledWFIPressure : REAL;
 	scaledWFI_MassFlowRate : REAL;
@@ -42,8 +42,8 @@ VAR
 	avg100WFI_MassFlowRate : REAL;
 	
 //---------------------INIT Control Variables---------------------------------------//
-	hOP_ProcessState			: BOOL	:= FALSE;	// Overpressure process step active
-	hOP_ValvesPositionSet	 	: BOOL 	:= FALSE;	// Position Valves
+	hOP_ProcessState			: BOOL	:= TRUE;	// Overpressure process step active
+	hOP_ValvesPositionSet	 	: BOOL 	:= TRUE;	// Position Valves
 	hOP_PumpActive				: BOOL	:= FALSE;	// Turn on Pump
 	hOP_PumpSpeed				: REAL 	:= 0;		// Pump Speed
 //----------------------------------------------------------------------------------//
@@ -83,6 +83,15 @@ IF NOT Initialized THEN
         stValves[i].Status := 0; // No faults
         stValves[i].isOpen := FALSE; // Initialize to closed
     END_FOR
+	FOR i := 1 TO GVL.pumpCount DO
+		stPumps[i].Name := WSTRING_TO_STRING(GVL.sPumpNames[i]);
+		stPumps[i].ID := i;
+		stPumps[i].IsOn := FALSE;
+		stPumps[i].CMDVoltage := 0.0;
+		stPumps[i].DO1 := FALSE;
+		stPumps[i].AO1 := 0.0;
+		stPumps[i].Status := 0;
+	END_FOR
     Initialized := TRUE;
 END_IF
 
@@ -173,14 +182,16 @@ wfi_MassFlowAvg100(
 	fbSampleSize := 100,
 	fbAverageValue => avg100WFI_MassFlowRate);
 
-// Pump Control - TBD
-IO.DO_wfiPump := outputDO3;
-IF hOP_PumpActive AND hOP_ValvesPositionSet THEN
-// 	outputAO3 := IO.AO3 := 5;
-	IO.AO_wfiPump := outputAO3;
-ELSE
-	IO.AO_wfiPump := 0;
-END_IF
+//------------------------------- Pump Control ------------------------------------//
+pumpCtrl(fbPumps := stPumps);
+
+// WFI Pump I/O Mapping (index 1)
+IO.DO_wfiPump := stPumps[1].DO1;
+IO.AO_wfiPump := stPumps[1].AO1;
+// Suspension Pump I/O Mapping (index 2) - uncomment when I/O available
+// IO.DO_suspPump := stPumps[2].DO1;
+// IO.AO_suspPump := stPumps[2].AO1;
+//----------------------------------------------------------------------------------//
 
 
 //////////////////////////////////////////

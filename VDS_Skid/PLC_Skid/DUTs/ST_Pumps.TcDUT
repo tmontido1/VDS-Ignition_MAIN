@@ -3,9 +3,13 @@
   <DUT Name="ST_Pumps" Id="{ff7f5bb5-0ab8-04dc-26e0-d6b6cc2f1c67}">
     <Declaration><![CDATA[TYPE ST_Pumps :
 STRUCT
-	Name : STRING[20]; // Pump Name
-    DI1 : BOOL; // Pump on/off
-    AO1 : BOOL; // Pump speed control variable 0-10V
+	Name : STRING[20]; 		// Pump Name
+	ID : INT;					// Pump index
+	IsOn : BOOL;				// Command: TRUE = pump active
+	CMDVoltage : REAL;			// Command: speed setpoint 0-10V
+	DO1 : BOOL := FALSE;				// Output: digital on/off (computed by FB_PumpCTRL)
+	AO1 : REAL := 0;				// Output: analog voltage (computed by FB_PumpCTRL)
+	Status : INT;				// 0=OK, 1=Fault
 END_STRUCT
 END_TYPE
 ]]></Declaration>
