@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_MassFlowMonitor" Id="{e5f6a7b8-9c0d-1e2f-3a4b-5c6d7e8f9a0b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_MassFlowMonitor
+VAR_IN_OUT
+	fbSensors : ARRAY[1..GVL.massFlowSensorCount] OF ST_MassFlowSensor;
+END_VAR
+
+VAR
+	fbScale : ARRAY[1..GVL.massFlowSensorCount] OF FB_ScaleAnalog;
+	i : INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FOR i := 1 TO GVL.massFlowSensorCount DO
+	fbScale[i](
+		fbRawValue := fbSensors[i].RawValue,
+		fbInputMin := fbSensors[i].InputMin,
+		fbInputMax := fbSensors[i].InputMax,
+		fbOutputMin := fbSensors[i].OutputMin,
+		fbOutputMax := fbSensors[i].OutputMax,
+		fbScaledValue => fbSensors[i].ScaledValue,
+		fbRangeError => fbSensors[i].RangeError);
+END_FOR]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

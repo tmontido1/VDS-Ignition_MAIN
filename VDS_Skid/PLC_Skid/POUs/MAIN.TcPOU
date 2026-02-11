@@ -15,6 +15,8 @@ VAR
 // Constant array of valve names
 	stValves : ARRAY[1..GVL.valveCount] OF ST_Valves;
 	stPumps : ARRAY[1..GVL.pumpCount] OF ST_Pumps;
+	stPressureSensors : ARRAY[1..GVL.pressureSensorCount] OF ST_PressureSensor;
+	stMassFlowSensors : ARRAY[1..GVL.massFlowSensorCount] OF ST_MassFlowSensor;
 //----------------------------------------------------------------------------------//
 
 
@@ -25,7 +27,8 @@ VAR
 	varPulse : FB_PulseValve;   // Instance of the function block
 	unitOp_OverPressure : FBUO_OverPressure;
 	unitOp_OverPressureEX : FBUO_OverPressure_EX;
-	wfi_OutletPressure : FB_ScaleAnalog;
+	pressureMonitor : FB_PressureMonitor;
+	massFlowMonitor : FB_MassFlowMonitor;
 	wfi_MassFlowAvg10 : FB_MovingAverage;
 	wfi_MassFlowAvg30 : FB_MovingAverage;
 	wfi_MassFlowAvg100 : FB_MovingAverage;
@@ -34,9 +37,6 @@ VAR
 //---------------------------- General Variables -----------------------------------//
 	outputDO1 : BOOL;           // Local output variable
     tPulseTime : TIME := T#1000MS; // Pulse duration
-	rawWFIPressure : REAL;
-	scaledWFIPressure : REAL;
-	scaledWFI_MassFlowRate : REAL;
 	avg10WFI_MassFlowRate : REAL;
 	avg30WFI_MassFlowRate : REAL;
 	avg100WFI_MassFlowRate : REAL;
@@ -92,6 +92,30 @@ IF NOT Initialized THEN
 		stPumps[i].AO1 := 0.0;
 		stPumps[i].Status := 0;
 	END_FOR
+	FOR i := 1 TO GVL.pressureSensorCount DO
+		stPressureSensors[i].Name := WSTRING_TO_STRING(GVL.sPressureSensorNames[i]);
+		stPressureSensors[i].ID := i;
+		stPressureSensors[i].RawValue := 0.0;
+		stPressureSensors[i].ScaledValue := 0.0;
+		stPressureSensors[i].InputMin := 4.0;
+		stPressureSensors[i].InputMax := 20.0;
+		stPressureSensors[i].OutputMin := 0.0;
+		stPressureSensors[i].OutputMax := 30.0;
+		stPressureSensors[i].RangeError := FALSE;
+		stPressureSensors[i].Status := 0;
+	END_FOR
+	FOR i := 1 TO GVL.massFlowSensorCount DO
+		stMassFlowSensors[i].Name := WSTRING_TO_STRING(GVL.sMassFlowSensorNames[i]);
+		stMassFlowSensors[i].ID := i;
+		stMassFlowSensors[i].RawValue := 0.0;
+		stMassFlowSensors[i].ScaledValue := 0.0;
+		stMassFlowSensors[i].InputMin := 0.0;
+		stMassFlowSensors[i].InputMax := 8388607.0;
+		stMassFlowSensors[i].OutputMin := 0.0;
+		stMassFlowSensors[i].OutputMax := 4500.0;
+		stMassFlowSensors[i].RangeError := FALSE;
+		stMassFlowSensors[i].Status := 0;
+	END_FOR
     Initialized := TRUE;
 END_IF
 
@@ -127,6 +151,8 @@ IF OPActive THEN
       bEnable := TRUE,
       bStart  := bStartSyringeSetup
   );
+  
+  
   fbAcetonePrime(
       bEnable            := TRUE,
       bStartAcetonePrime := bStartActenePriming,
@@ -151,34 +177,34 @@ END_IF
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
-rawWFIPressure := (IO.AI_wfiPressureSensor);
-wfi_OutletPressure(
-					fbRawValue := rawWFIPressure,
-					fbInputMin := 4.0,
-					fbInputMax := 20.0,
-					fbOutputMin := 0.0,
-					fbOutputMax := 30.0,
-					fbScaledValue => scaledWFIPressure);
+// Pressure Sensor I/O Mapping
+stPressureSensors[1].RawValue := IO.AI_wfiPressureSensor;
+// stPressureSensors[2].RawValue := IO.AI_suspPressureSensor;       // uncomment when wired
+// stPressureSensors[3].RawValue := IO.AI_tffOutletPressureSensor;  // uncomment when wired
+pressureMonitor(fbSensors := stPressureSensors);
+////////////////////////////////////////////////////////////////////////////////////////////////
 					
-// Conversion of raw input (DINT to Real)
-//Extended Range*4500 g/min-> set in emerson flowrate sensor
-scaledWFI_MassFlowRate := (DINT_TO_REAL(IO.AI_wfiFlowMeter) / 8388607.0) * 4500.0;
+// Mass Flow Sensor I/O Mapping (DINT to REAL conversion at boundary)
+stMassFlowSensors[1].RawValue := DINT_TO_REAL(IO.AI_wfiFlowMeter);
+// stMassFlowSensors[2].RawValue := DINT_TO_REAL(IO.AI_suspMassFlowMeter);     // uncomment when wired
+// stMassFlowSensors[3].RawValue := DINT_TO_REAL(IO.AI_dischargeFlowMeter);    // uncomment when wired
+massFlowMonitor(fbSensors := stMassFlowSensors);
 
-// 10-sample moving average for flow rate
+// 10-sample moving average for WFI mass flow rate
 wfi_MassFlowAvg10(
-	fbInputValue := scaledWFI_MassFlowRate,
+	fbInputValue := stMassFlowSensors[1].ScaledValue,
 	fbSampleSize := 10,
 	fbAverageValue => avg10WFI_MassFlowRate);
-	
-// 30-sample moving average for flow rate
+
+// 30-sample moving average for WFI mass flow rate
 wfi_MassFlowAvg30(
-	fbInputValue := scaledWFI_MassFlowRate,
+	fbInputValue := stMassFlowSensors[1].ScaledValue,
 	fbSampleSize := 30,
 	fbAverageValue => avg30WFI_MassFlowRate);
-	
-	// 10-sample moving average for flow rate
+
+// 100-sample moving average for WFI mass flow rate
 wfi_MassFlowAvg100(
-	fbInputValue := scaledWFI_MassFlowRate,
+	fbInputValue := stMassFlowSensors[1].ScaledValue,
 	fbSampleSize := 100,
 	fbAverageValue => avg100WFI_MassFlowRate);
 

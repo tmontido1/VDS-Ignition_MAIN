@@ -32,6 +32,12 @@
     <Compile Include="DUTs\ST_AtlasPumpStatus.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\ST_MassFlowSensor.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ST_PressureSensor.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\ST_Pumps.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -54,6 +60,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\General FBs\FB_MovingAverage.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\General FBs\FB_MassFlowMonitor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\General FBs\FB_PressureMonitor.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\General FBs\FB_PulseValve.TcPOU">

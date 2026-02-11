@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="ST_PressureSensor" Id="{b2a1f3c4-8d5e-4f6a-9b0c-1d2e3f4a5b6c}">
+    <Declaration><![CDATA[TYPE ST_PressureSensor :
+STRUCT
+	Name : STRING[20];			// Sensor name
+	ID : INT;					// Sensor index
+	RawValue : REAL;			// Raw 4-20mA input from IO
+	ScaledValue : REAL;			// Scaled engineering units (computed by FB)
+	InputMin : REAL;			// Raw input minimum (e.g., 4.0)
+	InputMax : REAL;			// Raw input maximum (e.g., 20.0)
+	OutputMin : REAL;			// Scaled output minimum (e.g., 0.0)
+	OutputMax : REAL;			// Scaled output maximum (e.g., 30.0)
+	RangeError : BOOL;			// TRUE if raw input outside expected range
+	Status : INT;				// 0=OK, 1=Fault
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

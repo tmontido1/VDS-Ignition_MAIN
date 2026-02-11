@@ -19,8 +19,8 @@ sPumpNames : ARRAY[1..pumpCount] OF WSTRING := 	["WFI Pump",
 													"Suspension Pump"];
 
 stValveID : ARRAY[1..valveCount] OF INT := 	[1, 	// Dilution Selector
-											 2, 		// WFI Selector, 
-											 3, 		// Formation Drain, 
+											 2, 		// WFI Selector,
+											 3, 		// Formation Drain,
 											 4, 		// WFI Filter Bypass Inlet,
 											 5, 		// WFI Filter Inlet,
 											 6, 		// WFI Filter Outlet,
@@ -28,7 +28,15 @@ stValveID : ARRAY[1..valveCount] OF INT := 	[1, 	// Dilution Selector
 											 8, 		// Dilution Diverter,
 											 9, 		// Formation Manifold,
 											 10 	// Suspension Manifold]
-											];	
+											];
+
+pressureSensorCount : INT := 3;
+sPressureSensorNames : ARRAY[1..pressureSensorCount] OF WSTRING :=
+	["WFI Pressure", "Suspension Pressure", "TFF Outlet Pressure"];
+
+massFlowSensorCount : INT := 3;
+sMassFlowSensorNames : ARRAY[1..massFlowSensorCount] OF WSTRING :=
+	["WFI Mass Flow", "Suspension Mass Flow", "Discharge Flow"];
 END_VAR
 
 VAR_GLOBAL

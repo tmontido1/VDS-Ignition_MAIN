@@ -19,11 +19,22 @@ VAR_GLOBAL
 	// AO_suspPump AT %Q* : REAL;		// Analog Output for pump speed control
 //-------------------------------------------------------------------------------------------------//
 
-	AI_wfiPressureSensor AT %I* : REAL;			// Analog Ouput for pump speed control
+//---------------------------------- PRESSURE SENSOR MAPPING ----------------------------------------//
+	// WFI Pressure Sensor (index 1)
+	AI_wfiPressureSensor AT %I* : REAL;			// Analog Input for WFI pressure sensor (4-20mA)
+	// Suspension Pressure Sensor (index 2) - not yet connected
+	// AI_suspPressureSensor AT %I* : REAL;
+	// TFF Outlet Pressure Sensor (index 3) - not yet connected
+	// AI_tffOutletPressureSensor AT %I* : REAL;
+//-------------------------------------------------------------------------------------------------//
 
-
-//---------------------------------- CORRIOLIS METER MAPPING -------------------------------------------------//	
-	AI_wfiFlowMeter AT %I* : DINT;			// Analog Ouput for pump speed control
+//---------------------------------- MASS FLOW METER MAPPING ------------------------------------------//
+	// WFI Mass Flow Meter (index 1)
+	AI_wfiFlowMeter AT %I* : DINT;				// Coriolis meter raw input (24-bit DINT)
+	// Suspension Mass Flow Meter (index 2) - not yet connected
+	// AI_suspMassFlowMeter AT %I* : DINT;
+	// Discharge Flow Meter (index 3) - not yet connected
+	// AI_dischargeFlowMeter AT %I* : DINT;
 //-------------------------------------------------------------------------------------------------//
 
 //---------------------------------- VALVE MAPPING ------------------------------------------------//
