@@ -14,15 +14,24 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// Pump control - open loop voltage command
+      <ST><![CDATA[// Pump control - open loop voltage command with overpressure protection
 FOR i := 1 TO GVL.pumpCount DO
-    IF fbPumps[i].IsOn THEN
-        fbPumps[i].DO1 := TRUE;
-        fbPumps[i].AO1 := LIMIT(0.0, fbPumps[i].CMDVoltage, 10.0);
-    ELSE
-        fbPumps[i].DO1 := FALSE;
-        fbPumps[i].AO1 := 0.0;
-    END_IF
+	// Overpressure latch: trips when pressure >= limit, stays latched until cleared externally
+	IF fbPumps[i].PressureLimit > 0.0 AND fbPumps[i].PressureValue >= fbPumps[i].PressureLimit THEN
+		fbPumps[i].OverPressure := TRUE;
+	END_IF
+
+	// Control pump output
+	IF fbPumps[i].OverPressure THEN
+		fbPumps[i].DO1 := FALSE;
+		fbPumps[i].AO1 := 0.0;
+	ELSIF fbPumps[i].IsOn THEN
+		fbPumps[i].DO1 := TRUE;
+		fbPumps[i].AO1 := LIMIT(0.0, fbPumps[i].CMDVoltage, 10.0);
+	ELSE
+		fbPumps[i].DO1 := FALSE;
+		fbPumps[i].AO1 := 0.0;
+	END_IF
 END_FOR]]></ST>
     </Implementation>
   </POU>

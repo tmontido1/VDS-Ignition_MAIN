@@ -90,6 +90,9 @@ IF NOT Initialized THEN
 		stPumps[i].CMDVoltage := 0.0;
 		stPumps[i].DO1 := FALSE;
 		stPumps[i].AO1 := 0.0;
+		stPumps[i].PressureValue := 0.0;
+		stPumps[i].PressureLimit := 10.0;
+		stPumps[i].OverPressure := FALSE;
 		stPumps[i].Status := 0;
 	END_FOR
 	FOR i := 1 TO GVL.pressureSensorCount DO
@@ -209,7 +212,10 @@ wfi_MassFlowAvg100(
 //-----------------------------------------------------------------------------------------------------//
 
 
-//------------------------------- Pump Control (Development, to be added to Routine) ------------------------------------//
+//------------------------------- Pump Control ------------------------------------//
+// Map pressure sensor readings to pumps for overpressure protection
+stPumps[1].PressureValue := stPressureSensors[1].ScaledValue;		// WFI Pump <- WFI Pressure
+stPumps[2].PressureValue := stPressureSensors[2].ScaledValue;		// Suspension Pump <- Suspension Pressure
 pumpCtrl(fbPumps := stPumps);
 // WFI Pump I/O Mapping (index 1)
 IO.DO_wfiPump := stPumps[1].DO1;

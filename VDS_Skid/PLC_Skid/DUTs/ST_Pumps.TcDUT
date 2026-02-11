@@ -9,6 +9,9 @@ STRUCT
 	CMDVoltage : REAL;			// Command: speed setpoint 0-10V
 	DO1 : BOOL := FALSE;				// Output: digital on/off (computed by FB_PumpCTRL)
 	AO1 : REAL := 0;				// Output: analog voltage (computed by FB_PumpCTRL)
+	PressureValue : REAL;			// Current pressure reading (mapped from sensor in MAIN)
+	PressureLimit : REAL;			// Overpressure trip threshold (0.0 = no check)
+	OverPressure : BOOL;			// Latching overpressure flag (clear from HMI to reset)
 	Status : INT;				// 0=OK, 1=Fault
 END_STRUCT
 END_TYPE
