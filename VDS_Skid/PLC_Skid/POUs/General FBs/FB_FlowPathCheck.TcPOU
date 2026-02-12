@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_FlowPathCheck" Id="{b2c3d4e5-2345-6789-abcd-ef0123456789}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_FlowPathCheck
+VAR_IN_OUT
+	fbRequiredValves : ARRAY[1..GVL.valveCount] OF INT;	// Valve indices that must be open (0 = unused slot)
+	fbValves : ARRAY[1..GVL.valveCount] OF ST_Valves;		// Valve data array
+END_VAR
+
+VAR_OUTPUT
+	fbPathOpen : BOOL;		// TRUE if all required valves confirmed open (DI1 = TRUE)
+	fbValveCount : INT;		// Number of valves checked (non-zero entries)
+END_VAR
+
+VAR
+	i : INT;
+	nChecked : INT;
+	bAllOpen : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Check if all required valves in the flow path are confirmed open
+// A valve is confirmed open when DI1 = TRUE (open feedback)
+// DI2 = TRUE means valve is closed
+// Index entries of 0 are skipped (unused slots in the array)
+
+bAllOpen := TRUE;
+nChecked := 0;
+
+FOR i := 1 TO GVL.valveCount DO
+	IF fbRequiredValves[i] > 0 AND fbRequiredValves[i] <= GVL.valveCount THEN
+		nChecked := nChecked + 1;
+		IF NOT fbValves[fbRequiredValves[i]].DI1 THEN
+			bAllOpen := FALSE;
+		END_IF
+	END_IF
+END_FOR
+
+// Path is only open if at least one valve was checked and all are confirmed open
+fbPathOpen := bAllOpen AND (nChecked > 0);
+fbValveCount := nChecked;]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

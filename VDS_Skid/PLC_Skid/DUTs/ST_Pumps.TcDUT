@@ -12,6 +12,7 @@ STRUCT
 	PressureValue : REAL;			// Current pressure reading (mapped from sensor in MAIN)
 	PressureLimit : REAL;			// Overpressure trip threshold (0.0 = no check)
 	OverPressure : BOOL;			// Latching overpressure flag (clear from HMI to reset)
+	FlowPathOpen : BOOL;			// TRUE if required flow path valves are confirmed open
 	Status : INT;				// 0=OK, 1=Fault
 END_STRUCT
 END_TYPE

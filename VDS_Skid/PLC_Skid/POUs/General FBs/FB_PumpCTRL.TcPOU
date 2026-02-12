@@ -21,8 +21,11 @@ FOR i := 1 TO GVL.pumpCount DO
 		fbPumps[i].OverPressure := TRUE;
 	END_IF
 
-	// Control pump output
+	// Control pump output (safety checks: overpressure, flow path)
 	IF fbPumps[i].OverPressure THEN
+		fbPumps[i].DO1 := FALSE;
+		fbPumps[i].AO1 := 0.0;
+	ELSIF NOT fbPumps[i].FlowPathOpen THEN
 		fbPumps[i].DO1 := FALSE;
 		fbPumps[i].AO1 := 0.0;
 	ELSIF fbPumps[i].IsOn THEN

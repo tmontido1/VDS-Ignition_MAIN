@@ -29,6 +29,7 @@ VAR
 	unitOp_OverPressureEX : FBUO_OverPressure_EX;
 	pressureMonitor : FB_PressureMonitor;
 	massFlowMonitor : FB_MassFlowMonitor;
+	flowPathCheck_WFI : FB_FlowPathCheck;
 	wfi_MassFlowAvg10 : FB_MovingAverage;
 	wfi_MassFlowAvg30 : FB_MovingAverage;
 	wfi_MassFlowAvg100 : FB_MovingAverage;
@@ -52,6 +53,12 @@ VAR
 	hOPEX_ProcessState			: BOOL	:= FALSE;	// Overpressure process step active
 	hOPEX_ValvesPositionSet	 	: BOOL 	:= FALSE;	// Position Valves
 	hOPEX_PumpActive			: BOOL	:= FALSE;	// Turn on Pump
+//----------------------------------------------------------------------------------//
+
+//---------------------Flow Path Definitions---------------------------------------//
+	wfiFlowPath_OP		: ARRAY[1..GVL.valveCount] OF INT := [2,5,0,0,0,0,0,0,0,0];
+	wfiFlowPath_OPEX	: ARRAY[1..GVL.valveCount] OF INT := [2,4,7,8,9,10,0,0,0,0];
+	wfiActiveFlowPath	: ARRAY[1..GVL.valveCount] OF INT;
 //----------------------------------------------------------------------------------//
 
 
@@ -95,6 +102,7 @@ IF NOT Initialized THEN
 		stPumps[i].PressureValue := 0.0;
 		stPumps[i].PressureLimit := 10.0;
 		stPumps[i].OverPressure := FALSE;
+		stPumps[i].FlowPathOpen := FALSE;
 		stPumps[i].Status := 0;
 	END_FOR
 	FOR i := 1 TO GVL.pressureSensorCount DO
@@ -221,6 +229,20 @@ wfi_MassFlowAvg100(
 	fbAverageValue => avg100WFI_MassFlowRate);
 //-----------------------------------------------------------------------------------------------------//
 
+
+//------------------------------- Flow Path Check ---------------------------------//
+// Select active flow path based on which operation is running
+IF hOP_ProcessState THEN
+	wfiActiveFlowPath := wfiFlowPath_OP;
+ELSIF hOPEX_ProcessState THEN
+	wfiActiveFlowPath := wfiFlowPath_OPEX;
+END_IF
+// Check if required valves are confirmed open
+flowPathCheck_WFI(
+	fbRequiredValves := wfiActiveFlowPath,
+	fbValves := stValves);
+stPumps[1].FlowPathOpen := flowPathCheck_WFI.fbPathOpen;
+//----------------------------------------------------------------------------------//
 
 //------------------------------- Pump Control ------------------------------------//
 // Map filtered pressure readings to pumps for overpressure protection

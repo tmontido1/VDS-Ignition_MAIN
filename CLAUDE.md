@@ -44,7 +44,7 @@ The MAIN program runs every PLC cycle and orchestrates all control operations:
 
 **ST_Valves**: Primary valve data structure containing:
 - Identification: `Name` (WSTRING), `ID` (INT index)
-- Inputs: `DI1`/`DI2` (closed/open feedback), `AI1` (position 0-10V), `DO1` (init signal)
+- Inputs: `DI1`/`DI2` (open/closed feedback), `AI1` (position 0-10V), `DO1` (init signal)
 - Outputs: `AO1` (position setpoint 0-10V)
 - Control: `State` (0=Off, 1=Open/Close, 2=OpenLoop, 3=PID), `isOpen` (BOOL command)
 - Advanced: `Setpoint`, `PV`, `Output` (for OpenLoop/PID modes)

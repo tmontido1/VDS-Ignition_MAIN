@@ -65,6 +65,9 @@
     <Compile Include="POUs\General FBs\FB_FirstOrderLP.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\General FBs\FB_FlowPathCheck.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\General FBs\FB_MassFlowMonitor.TcPOU">
       <SubType>Code</SubType>
     </Compile>
