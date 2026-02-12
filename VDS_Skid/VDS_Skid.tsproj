@@ -10,6 +10,7 @@
 					<ManualSelect>{796D380F-D49E-4C0C-A05F-500052FAC883}</ManualSelect>
 					<ManualSelect>{FDE02854-39A7-440C-9EAE-C234A16A3CED}</ManualSelect>
 					<ManualSelect>{BDCC0070-42D5-49AE-ABF1-1D4434813D60}</ManualSelect>
+					<LicenseDevice DongleHardwareId="2" DongleDevice="#x03020003" DongleLevel="40" DongleSystemId="{06DC3159-8DE8-42D9-8A4A-88FD9828C7DC}" DongleSerialNumber="000btiyo" DongleCacheLicense="true"/>
 				</Target>
 			</Licenses>
 			<Tasks>
@@ -35,6 +36,7 @@
 		<Io>
 			<Device File="Device 1 (EtherCAT).xti" Id="1"/>
 			<Device File="Device 2 (EtherCAT).xti" Id="2"/>
+			<Device File="Device 3 (USB).xti" Id="3"/>
 		</Io>
 	</Project>
 	<Mappings>
