@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.20" ClassName="CFlbTermDef" SubType="9099">
+	<ImageDatas>
+		<ImageData Id="1000">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ff808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff00ffff00ffffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff00ffff00ffffc0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff00ffff00ffffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff00ffff00ffffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff00ffff00ffffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff00ffff00ffffc0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff00ffff00ffffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
+	</ImageDatas>
+	<Box Id="24" BoxType="9099">
+		<Name>__FILENAME__</Name>
+		<ImageId>1000</ImageId>
+		<EtherCAT SlaveType="1" PdiType="#x0104" CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x05813052" RevisionNo="#x00100000" BIC="1P322594SBTN999kssy11KEL1409                        Q1    2P372500000016" RepeatSupport="true" PortPhys="51" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL1409 16Ch. Dig. Input 24V, 3ms" Desc="EL1409">
+			<SyncMan>001002000000010004000000000000000200001000010000</SyncMan>
+			<Fmmu>0000000000000000001000010100000002000000000000000000000000000000</Fmmu>
+			<Pdo Name="DIP Inputs" Index="#x1a00" Flags="#x0011" SyncMan="0">
+				<Entry Name="Input Channel 1" Index="#x6000" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 2" Index="#x6010" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 3" Index="#x6020" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 4" Index="#x6030" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 5" Index="#x6040" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 6" Index="#x6050" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 7" Index="#x6060" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 8" Index="#x6070" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 9" Index="#x6080" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 10" Index="#x6090" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 11" Index="#x60a0" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 12" Index="#x60b0" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 13" Index="#x60c0" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 14" Index="#x60d0" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 15" Index="#x60e0" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+				<Entry Name="Input Channel 16" Index="#x60f0" Sub="#x01">
+					<Type>BIT</Type>
+				</Entry>
+			</Pdo>
+		</EtherCAT>
+	</Box>
+</TcSmItem>

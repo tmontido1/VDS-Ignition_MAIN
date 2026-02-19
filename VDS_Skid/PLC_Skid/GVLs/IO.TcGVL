@@ -101,12 +101,19 @@ VAR_GLOBAL
     DO1_FormManifold AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
     AO1_FormManifold AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
 	
-		// IOs Formation Manifold Valve
+		// IOs Suspension Manifold Valve
     DI1_SuspManifold AT %I* : BOOL;      // Digital Input 1 Closed Feedback
     DI2_SuspManifold AT %I* : BOOL;      // Digital Input 2 Open Feedback
     AI1_SuspManifold AT %I* : REAL;      // Analog Input 1 Valve Position Feedback
     DO1_SuspManifold AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
     AO1_SuspManifold AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (0-10V)
+	
+			// IOs Test Manifold Valve
+    DI1_TestManifold AT %I* : BOOL;      // Digital Input 1 Closed Feedback
+    DI2_TestManifold AT %I* : BOOL;      // Digital Input 2 Open Feedback
+    AI1_TestManifold AT %I* : REAL;      // Analog Input 1 Valve Position Feedback (4-20ma)
+    DO1_TestManifold AT %Q* : BOOL;     	// Digital Output 1 Valve Initialization
+    AO1_TestManifold AT %Q* : REAL;      // Analog Output 1 Valve Position Control Variable (4-20ma)
 //-------------------------------------------------------------------------------------------------//
 
 END_VAR]]></Declaration>

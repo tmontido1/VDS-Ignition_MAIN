@@ -57,8 +57,18 @@
 	</Instance>
 	<Mappings>
 		<OwnerA>
-			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 3 (EK1200)^Term 2 (ELM3104-0020)">
-				<Link VarA="PlcTask Inputs^IO.AI_wfiFlowMeter" VarB="PAI Samples 1 Channel 1^Samples"/>
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 4 (EK1200)^Term 20 (ELM3104-0020)">
+				<Link VarA="PlcTask Inputs^IO.AI_wfiFlowMeter" VarB="PAI Samples 1 Channel 1^Samples[0]"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 4 (EK1200)^Term 22 (EK1122)^Term 23 (EK1100)^Term 24 (EL1409)">
+				<Link VarA="PlcTask Inputs^IO.DI1_TestManifold" VarB="DIP Inputs^Input Channel 1" Size="1"/>
+				<Link VarA="PlcTask Inputs^IO.DI2_TestManifold" VarB="DIP Inputs^Input Channel 2" Size="1"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 4 (EK1200)^Term 22 (EK1122)^Term 23 (EK1100)^Term 26 (EL3078)">
+				<Link VarA="PlcTask Inputs^IO.AI1_TestManifold" VarB="AI Standard (Real32) Channel 1^Value (Real32)"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 4 (EK1200)^Term 22 (EK1122)^Term 23 (EK1100)^Term 27 (EL4078)">
+				<Link VarA="PlcTask Outputs^IO.AO1_TestManifold" VarB="AO Standard (Real32) Channel 1^Value (Real32)"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 13 (IOLITE GATE LATCH v2.00 Bus2)^Term 14 (IOLITEr 32xDI Bus2)">
 				<Link VarA="PlcTask Inputs^IO.DI1_FormManifold" VarB="AI TxPDO-Map^DI21" Size="1"/>

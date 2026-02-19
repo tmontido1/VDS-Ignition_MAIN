@@ -2,7 +2,7 @@
 <TcPlcObject Version="1.1.0.1">
   <GVL Name="GVL" Id="{ae3bfd4d-cad6-090e-2b29-8bdb174a4977}">
     <Declaration><![CDATA[VAR_GLOBAL CONSTANT
-	valveCount : INT := 10;
+	valveCount : INT := 11;
 	sValveNames : ARRAY[1..valveCount] OF WSTRING := 	["Dilution Selector", 
 														"WFI Selector", 
 														"Formation Drain", 
@@ -12,7 +12,8 @@
 														"WFI Filter Bypass Outlet",
 														"Dilution Diverter",
 														"Formation Manifold",
-														"Suspension Manifold"];	
+														"Suspension Manifold",
+														"Test Manifold"];	
 														
 pumpCount : INT := 2;
 sPumpNames : ARRAY[1..pumpCount] OF WSTRING := 	["WFI Pump",
@@ -27,7 +28,8 @@ stValveID : ARRAY[1..valveCount] OF INT := 	[1, 	// Dilution Selector
 											 7, 		// WFI Filter Bypass Outlet,
 											 8, 		// Dilution Diverter,
 											 9, 		// Formation Manifold,
-											 10 	// Suspension Manifold]
+											 10, 	// Suspension Manifold,
+											 11		// Test Manifold
 											];
 
 pressureSensorCount : INT := 3;

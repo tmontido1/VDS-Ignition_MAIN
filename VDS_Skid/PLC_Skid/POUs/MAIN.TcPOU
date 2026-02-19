@@ -80,6 +80,7 @@ nAcetoneCycle				: INT;
 // -----------------------MATLAB Variables for testing ----------------------------//
 mtbIN		: INT		:= 1;
 mtbOUT		: INT;
+currentValue : REAL := 0;
 END_VAR
 
 ]]></Declaration>
@@ -144,8 +145,7 @@ CycleCount := CycleCount + 1;
 
 mtbOut := mtbOut+mtbIN*2;
 
-
-
+IO.AO1_TestManifold := currentValue;
 
 //------------------------------ Valve Position Monitoring -----------------------------------//
 systemCheck_Valves(
