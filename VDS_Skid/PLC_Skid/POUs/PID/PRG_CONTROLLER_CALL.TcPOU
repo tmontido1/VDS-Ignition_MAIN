@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="PRG_CONTROLLER_CALL" Id="{64db7495-2ded-04e8-2256-4a372158dbbf}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM PRG_CONTROLLER_CALL
+
+VAR
+	
+	stPumps 	: ARRAY[1..GVL.pumpCount] OF ST_Pumps;
+	
+	
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+
+IF stPumps[1].ControllerIsOn AND stPumps[1].IsOn THEN
+	IO.DO_wfiPump 					:= TRUE;
+	PRG_FB_CTRL_PI();
+
+	ELSE
+	IO.DO_wfiPump := FALSE;
+	IO.AO_wfiPump := stPumps[1].ControllerSetppoint := 0;
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

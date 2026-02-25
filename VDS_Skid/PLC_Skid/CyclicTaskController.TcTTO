@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
-  <Task Name="CyclicTask100ms" Id="{c29408d6-36ae-059b-15ac-15e804fd938f}">
+  <Task Name="CyclicTaskController" Id="{c29408d6-36ae-059b-15ac-15e804fd938f}">
     <!--CycleTime in micro seconds.-->
-    <CycleTime>100000</CycleTime>
+    <CycleTime>10000</CycleTime>
     <Priority>1</Priority>
     <PouCall>
-      <Name>PRG_PID_CALL</Name>
+      <Name>PRG_CONTROLLER_CALL</Name>
     </PouCall>
     <TaskFBGuid>{25814dc4-3063-4f2b-9062-ec6b0206bfdd}</TaskFBGuid>
     <Fb_init>{90eda02d-1b63-4ad0-b386-dc01f8ef95c4}</Fb_init>

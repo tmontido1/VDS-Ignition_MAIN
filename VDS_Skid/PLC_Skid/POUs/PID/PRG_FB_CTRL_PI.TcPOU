@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="PRG_FB_CTRL_PI" Id="{fd0a722f-9a8e-0ea4-3627-1398092e38ac}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM PRG_FB_CTRL_PI
+
+
+VAR
+	stPumps 	: ARRAY[1..GVL.pumpCount] OF ST_Pumps;	
+
+	fSetpointValue				: LREAL;
+	fActualValue				: LREAL;
+	fManSyncValue				: LREAL;
+	bSync						: BOOL;
+
+	fOut						: LREAL;
+	bHold						: BOOL;
+
+	eMode						: E_CTRL_MODE;
+	stCTRL_PI_PARAMS			: ST_CTRL_PI_PARAMS;
+
+	eErrorId					: E_CTRL_ERRORCODES;
+	bError						: BOOL;
+	bARWactive					: BOOL;
+
+	(* controller  *)
+	fbCTRL_PI					: FB_CTRL_PI;
+
+	bInit						: BOOL := TRUE;
+	fbTON						: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF bInit THEN
+	(* init parameter struct *)
+	stCTRL_PI_PARAMS.tCtrlCycleTime		:= T#10MS;
+	stCTRL_PI_PARAMS.tTaskCycleTime		:= T#10MS;
+	stCTRL_PI_PARAMS.tTn				:= T#2S;	(* derivative gain Tv				*)
+	stCTRL_PI_PARAMS.fKp				:= 2;		(* proportional gain Kp				*)
+	stCTRL_PI_PARAMS.fOutMaxLimit		:= 3;  		(* maximum output limit				*)
+	stCTRL_PI_PARAMS.fOutMinLimit		:= 0;		(* minimum output limit				*)
+
+	(* set the mode to ACTIVE --> normal operation *)
+	eMode := eCTRL_MODE_ACTIVE;
+
+	(* reset the init flag *)
+	bInit := FALSE;
+END_IF
+
+fSetpointValue := stPumps[1].ControllerSetppoint;
+fActualValue := GVL.avg10WFI_MassFlowRate;
+
+(* copy var to scope var *)
+fSetpointValueToScope 		:= fSetpointValue;
+fActualValueToScope 		:= fActualValue;
+
+(* call controller *)
+fbCTRL_PI(		fSetpointValue		:= fSetpointValue,
+					fActualValue		:= fActualValue,
+					fManSyncValue	:= fManSyncValue,
+					bSync				:= bSync,
+					eMode				:= eMode,
+					bHold				:= bHold,
+					stParams			:= stCTRL_PI_PARAMS,
+					fOut				=> fOut,
+					bARWactive		=> bARWactive,
+					eErrorId			=> eErrorId,
+					bError				=> bError
+				);
+
+
+(* copy var to scope var *)
+fOut := stPumps[1].CMDVoltage;
+fOutToScope := fOut;]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

@@ -7,6 +7,8 @@ STRUCT
 	ID : INT;					// Pump index
 	IsOn : BOOL;				// Command: TRUE = pump active
 	CMDVoltage : REAL;			// Command: speed setpoint 0-10V
+	ControllerIsOn : BOOL;			// Allows for PID Control
+	ControllerSetppoint : REAL;		//Setpoint mass flow rate in g/min
 	DO1 : BOOL := FALSE;				// Output: digital on/off (computed by FB_PumpCTRL)
 	AO1 : REAL := 0;				// Output: analog voltage (computed by FB_PumpCTRL)
 	PressureValue : REAL;			// Current pressure reading (mapped from sensor in MAIN)

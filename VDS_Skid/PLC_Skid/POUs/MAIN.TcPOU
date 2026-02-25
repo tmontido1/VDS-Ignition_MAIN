@@ -38,7 +38,7 @@ VAR
 //---------------------------- General Variables -----------------------------------//
 	outputDO1 : BOOL;           // Local output variable
     tPulseTime : TIME := T#1000MS; // Pulse duration
-	avg10WFI_MassFlowRate : REAL;
+	//avg10WFI_MassFlowRate : REAL;
 	avg30WFI_MassFlowRate : REAL;
 	avg100WFI_MassFlowRate : REAL;
 	
@@ -78,8 +78,9 @@ nAcetoneCycle				: INT;
 //----------------------------------------------------------------------------------//
 
 // -----------------------MATLAB Variables for testing ----------------------------//
-mtbIN		: INT		:= 1;
+mtbIN		: INT		:= 1000;
 mtbOUT		: INT;
+mtbActive	: BOOL		:= FALSE;	
 currentValue : REAL := 0;
 END_VAR
 
@@ -101,6 +102,7 @@ IF NOT Initialized THEN
 		stPumps[i].ID := i;
 		stPumps[i].IsOn := FALSE;
 		stPumps[i].CMDVoltage := 0.0;
+		stPumps[i].ControllerIsOn := FALSE;
 		stPumps[i].DO1 := FALSE;
 		stPumps[i].AO1 := 0.0;
 		stPumps[i].PressureValue := 0.0;
@@ -128,7 +130,7 @@ IF NOT Initialized THEN
 		stMassFlowSensors[i].ID := i;
 		stMassFlowSensors[i].RawValue := 0.0;
 		stMassFlowSensors[i].ScaledValue := 0.0;
-		stMassFlowSensors[i].InputMin := 0.0;
+		stMassFlowSensors[i].InputMin := 0;
 		stMassFlowSensors[i].InputMax := 8388607.0;
 		stMassFlowSensors[i].OutputMin := 0.0;
 		stMassFlowSensors[i].OutputMax := 4500.0;
@@ -141,17 +143,26 @@ CycleCount := CycleCount + 1;
 
 //--------------------------------------------------------------------------------------------//
 
-//------------------------------- Matlab Testing --------------------------------------------//
-
-mtbOut := mtbOut+mtbIN*2;
-
-IO.AO1_TestManifold := currentValue;
 
 //------------------------------ Valve Position Monitoring -----------------------------------//
 systemCheck_Valves(
 	fbCheckProcessState := TRUE, 
 	fbValves 			:= stValves);
 //--------------------------------------------------------------------------------------------//
+
+//------------------------------- Flow Path Check --------------------------------------------//
+// Select active flow path based on which operation is running
+IF hOP_ProcessState THEN
+	wfiActiveFlowPath := wfiFlowPath_OP;
+ELSIF hOPEX_ProcessState THEN
+	wfiActiveFlowPath := wfiFlowPath_OPEX;
+END_IF
+// Check if required valves are confirmed open
+flowPathCheck_WFI(
+	fbRequiredValves := wfiActiveFlowPath,
+	fbValves := stValves);
+stPumps[1].FlowPathOpen := flowPathCheck_WFI.fbPathOpen;
+//------------------------------------------------------------------------------------------//
 
 //------------------------- Overpressure Process (Development Only) --------------------------//
 unitOp_OverPressureEX(
@@ -224,7 +235,7 @@ massFlowMonitor(fbSensors := stMassFlowSensors);
 wfi_MassFlowAvg10(
 	fbInputValue := stMassFlowSensors[1].ScaledValue,
 	fbSampleSize := 10,
-	fbAverageValue => avg10WFI_MassFlowRate);
+	fbAverageValue => GVL.avg10WFI_MassFlowRate);
 
 // 30-sample moving average for WFI mass flow rate
 wfi_MassFlowAvg30(
@@ -239,36 +250,33 @@ wfi_MassFlowAvg100(
 	fbAverageValue => avg100WFI_MassFlowRate);
 //-----------------------------------------------------------------------------------------------------//
 
-
-//------------------------------- Flow Path Check ---------------------------------//
-// Select active flow path based on which operation is running
-IF hOP_ProcessState THEN
-	wfiActiveFlowPath := wfiFlowPath_OP;
-ELSIF hOPEX_ProcessState THEN
-	wfiActiveFlowPath := wfiFlowPath_OPEX;
-END_IF
-// Check if required valves are confirmed open
-flowPathCheck_WFI(
-	fbRequiredValves := wfiActiveFlowPath,
-	fbValves := stValves);
-stPumps[1].FlowPathOpen := flowPathCheck_WFI.fbPathOpen;
-//----------------------------------------------------------------------------------//
-
 //------------------------------- Pump Control ------------------------------------//
 // Map filtered pressure readings to pumps for overpressure protection
 stPumps[1].PressureValue := stPressureSensors[1].FilteredValue;	// WFI Pump <- WFI Pressure
 stPumps[2].PressureValue := stPressureSensors[2].FilteredValue;	// Suspension Pump <- Suspension Pressure
 pumpCtrl(fbPumps := stPumps);
 // WFI Pump I/O Mapping (index 1)
-IO.DO_wfiPump := stPumps[1].DO1;
-IO.AO_wfiPump := stPumps[1].AO1;
+IF mtbActive AND NOT stPumps[1].ControllerIsOn THEN
+	IO.DO_wfiPump := stPumps[1].DO1;
+	IO.AO_wfiPump := stPumps[1].AO1;
+	ELSE
+	IO.DO_wfiPump := FALSE;
+	IO.AO_wfiPump := 0;
+END_IF
 // Suspension Pump I/O Mapping (index 2) - uncomment when I/O available
 // IO.DO_suspPump := stPumps[2].DO1;
 // IO.AO_suspPump := stPumps[2].AO1;
-//-----------------------------------------------------------------------------------------------------//
+//--------------------------------------------------------------------------------------------------------------//
 
+//------------------------------- Matlab Testing ---------------------------------------------------------------//
 
-
+IF mtbActive AND mtbOut <500 THEN
+	mtbOut := mtbOut+mtbIN;
+	ELSE
+	mtbOut :=0;
+END_IF
+IO.AO1_TestManifold := currentValue;
+//--------------------------------------------------------------------------------------------------------------//
 
 //------------------------------- Valve Init Function (To be refined later) ------------------------------------//
 // Correct function block call with inputs

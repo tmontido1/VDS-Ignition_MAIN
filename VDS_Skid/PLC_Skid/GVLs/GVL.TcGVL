@@ -13,12 +13,7 @@
 														"Dilution Diverter",
 														"Formation Manifold",
 														"Suspension Manifold",
-														"Test Manifold"];	
-														
-pumpCount : INT := 2;
-sPumpNames : ARRAY[1..pumpCount] OF WSTRING := 	["WFI Pump",
-													"Suspension Pump"];
-
+														"Test Manifold"];													
 stValveID : ARRAY[1..valveCount] OF INT := 	[1, 	// Dilution Selector
 											 2, 		// WFI Selector,
 											 3, 		// Formation Drain,
@@ -31,6 +26,10 @@ stValveID : ARRAY[1..valveCount] OF INT := 	[1, 	// Dilution Selector
 											 10, 	// Suspension Manifold,
 											 11		// Test Manifold
 											];
+											
+pumpCount : INT := 2;
+sPumpNames : ARRAY[1..pumpCount] OF WSTRING := 		
+	["WFI Pump", "Suspension Pump"];
 
 pressureSensorCount : INT := 3;
 sPressureSensorNames : ARRAY[1..pressureSensorCount] OF WSTRING :=
@@ -39,13 +38,19 @@ sPressureSensorNames : ARRAY[1..pressureSensorCount] OF WSTRING :=
 massFlowSensorCount : INT := 3;
 sMassFlowSensorNames : ARRAY[1..massFlowSensorCount] OF WSTRING :=
 	["WFI Mass Flow", "Suspension Mass Flow", "Discharge Flow"];
+	
+	
 END_VAR
 
 VAR_GLOBAL
 
 	myText 		: STRING(16) := 'Type';
 	myNum		: REAL := 0;
-	scaledWFI_MassFlowRate : REAL;
+	avg10WFI_MassFlowRate : REAL;
+	
+	fSetpointValueToScope			: LREAL;
+	fActualValueToScope				: LREAL;
+	fOutToScope						: LREAL;
 	
 END_VAR]]></Declaration>
   </GVL>

@@ -20,7 +20,7 @@
     <CombineIds>true</CombineIds>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CyclicTask100ms.TcTTO">
+    <Compile Include="CyclicTaskController.TcTTO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\EN_AtlasPumpAction.TcDUT">
@@ -45,6 +45,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GVLs\GVL.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="GVLs\GVL_Params.TcGVL">
       <SubType>Code</SubType>
       <LinkAlways>true</LinkAlways>
     </Compile>
@@ -92,7 +96,10 @@
     <Compile Include="POUs\MAIN.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\PRG_PID_CALL.TcPOU">
+    <Compile Include="POUs\PID\PRG_CONTROLLER_CALL.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\PID\PRG_FB_CTRL_PI.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\SerialComm.TcPOU">
@@ -124,6 +131,7 @@
     <Folder Include="DUTs" />
     <Folder Include="GVLs" />
     <Folder Include="POUs\General FBs" />
+    <Folder Include="POUs\PID" />
     <Folder Include="POUs\Status FBs" />
     <Folder Include="POUs\UnitOp FBs" />
     <Folder Include="VISUs" />
