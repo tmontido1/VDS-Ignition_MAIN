@@ -4,10 +4,6 @@
     <Declaration><![CDATA[PROGRAM PRG_CONTROLLER_CALL
 
 VAR
-	
-	stPumps 	: ARRAY[1..GVL.pumpCount] OF ST_Pumps;
-	
-	
 END_VAR
 
 ]]></Declaration>
@@ -15,13 +11,12 @@ END_VAR
       <ST><![CDATA[
 
 
-IF stPumps[1].ControllerIsOn AND stPumps[1].IsOn THEN
-	IO.DO_wfiPump 					:= TRUE;
+// PI controller gate - runs in CyclicTaskController
+// IO mapping and safety (FB_PumpCTRL) handled in MAIN
+IF GVL.stPumps[1].ControllerIsOn AND GVL.stPumps[1].IsOn THEN
 	PRG_FB_CTRL_PI();
-
-	ELSE
-	IO.DO_wfiPump := FALSE;
-	IO.AO_wfiPump := stPumps[1].ControllerSetppoint := 0;
+ELSE
+	GVL.stPumps[1].CMDVoltage := 0;
 END_IF]]></ST>
     </Implementation>
   </POU>

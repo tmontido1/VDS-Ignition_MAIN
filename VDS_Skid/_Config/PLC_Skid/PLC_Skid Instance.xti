@@ -105,7 +105,6 @@
 				<Link VarA="PlcTask Inputs^IO.AI1_wfiSV" VarB="UnBuf TxPDO-Map^u2"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 13 (IOLITE GATE LATCH v2.00 Bus2)^Term 16 (IOLITEr 16xAO Bus2)">
-				<Link VarA="CyclicTaskController Outputs^IO.AO_wfiPump" VarB="AO RxPDO-Map^AO 3"/>
 				<Link VarA="PlcTask Outputs^IO.AO1_FormManifold" VarB="AO RxPDO-Map^AO 9"/>
 				<Link VarA="PlcTask Outputs^IO.AO1_SuspManifold" VarB="AO RxPDO-Map^AO 11"/>
 				<Link VarA="PlcTask Outputs^IO.AO1_dilutionDiV" VarB="AO RxPDO-Map^AO 12"/>
@@ -116,9 +115,10 @@
 				<Link VarA="PlcTask Outputs^IO.AO1_wfiFilterIn" VarB="AO RxPDO-Map^AO 5"/>
 				<Link VarA="PlcTask Outputs^IO.AO1_wfiFilterOut" VarB="AO RxPDO-Map^AO 6"/>
 				<Link VarA="PlcTask Outputs^IO.AO1_wfiSV" VarB="AO RxPDO-Map^AO 2"/>
+				<Link VarA="PlcTask Outputs^IO.AO_wfiPump" VarB="AO RxPDO-Map^AO 3"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 4 (IOLITE GATE LATCH v2.00 Bus2)^Term 12 (IOLITEr 32xDO Bus2)">
-				<Link VarA="CyclicTaskController Outputs^IO.DO_wfiPump" VarB="DO RxPDO-Map^LED 3" Size="1"/>
+				<Link VarA="PlcTask Outputs^IO.DO_wfiPump" VarB="DO RxPDO-Map^LED 3" Size="1"/>
 			</OwnerB>
 			<OwnerB Name="TIID^Device 2 (EtherCAT)^Term 4 (IOLITE GATE LATCH v2.00 Bus2)^Term 6 (IOLITEr 6xSTG Bus2)">
 				<Link VarA="PlcTask Inputs^IO.AI_wfiPressureSensor" VarB="UnBuf TxPDO-Map^u1"/>

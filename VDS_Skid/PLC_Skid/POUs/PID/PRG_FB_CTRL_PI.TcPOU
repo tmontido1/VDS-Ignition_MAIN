@@ -5,8 +5,6 @@
 
 
 VAR
-	stPumps 	: ARRAY[1..GVL.pumpCount] OF ST_Pumps;	
-
 	fSetpointValue				: LREAL;
 	fActualValue				: LREAL;
 	fManSyncValue				: LREAL;
@@ -46,12 +44,12 @@ END_VAR
 	bInit := FALSE;
 END_IF
 
-fSetpointValue := stPumps[1].ControllerSetppoint;
+fSetpointValue := GVL.stPumps[1].ControllerSetppoint;
 fActualValue := GVL.avg10WFI_MassFlowRate;
 
 (* copy var to scope var *)
-fSetpointValueToScope 		:= fSetpointValue;
-fActualValueToScope 		:= fActualValue;
+GVL.fSetpointValueToScope 	:= fSetpointValue;
+GVL.fActualValueToScope 	:= fActualValue;
 
 (* call controller *)
 fbCTRL_PI(		fSetpointValue		:= fSetpointValue,
@@ -68,9 +66,9 @@ fbCTRL_PI(		fSetpointValue		:= fSetpointValue,
 				);
 
 
-(* copy var to scope var *)
-fOut := stPumps[1].CMDVoltage;
-fOutToScope := fOut;]]></ST>
+(* write PI output to pump command voltage *)
+GVL.stPumps[1].CMDVoltage := fOut;
+GVL.fOutToScope := fOut;]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

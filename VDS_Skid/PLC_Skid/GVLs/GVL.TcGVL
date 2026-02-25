@@ -47,6 +47,7 @@ VAR_GLOBAL
 	myText 		: STRING(16) := 'Type';
 	myNum		: REAL := 0;
 	avg10WFI_MassFlowRate : REAL;
+	stPumps		: ARRAY[1..pumpCount] OF ST_Pumps;	// Shared pump data (PI controller + MAIN)
 	
 	fSetpointValueToScope			: LREAL;
 	fActualValueToScope				: LREAL;

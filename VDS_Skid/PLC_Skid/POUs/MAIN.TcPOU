@@ -14,7 +14,6 @@ VAR
 //--------------------------------- Struct Init ------------------------------------//
 // Constant array of valve names
 	stValves : ARRAY[1..GVL.valveCount] OF ST_Valves;
-	stPumps : ARRAY[1..GVL.pumpCount] OF ST_Pumps;
 	stPressureSensors : ARRAY[1..GVL.pressureSensorCount] OF ST_PressureSensor;
 	stMassFlowSensors : ARRAY[1..GVL.massFlowSensorCount] OF ST_MassFlowSensor;
 //----------------------------------------------------------------------------------//
@@ -98,18 +97,18 @@ IF NOT Initialized THEN
         stValves[i].isOpen := FALSE; // Initialize to closed
     END_FOR
 	FOR i := 1 TO GVL.pumpCount DO
-		stPumps[i].Name := WSTRING_TO_STRING(GVL.sPumpNames[i]);
-		stPumps[i].ID := i;
-		stPumps[i].IsOn := FALSE;
-		stPumps[i].CMDVoltage := 0.0;
-		stPumps[i].ControllerIsOn := FALSE;
-		stPumps[i].DO1 := FALSE;
-		stPumps[i].AO1 := 0.0;
-		stPumps[i].PressureValue := 0.0;
-		stPumps[i].PressureLimit := 10.0;
-		stPumps[i].OverPressure := FALSE;
-		stPumps[i].FlowPathOpen := FALSE;
-		stPumps[i].Status := 0;
+		GVL.stPumps[i].Name := WSTRING_TO_STRING(GVL.sPumpNames[i]);
+		GVL.stPumps[i].ID := i;
+		GVL.stPumps[i].IsOn := FALSE;
+		GVL.stPumps[i].CMDVoltage := 0.0;
+		GVL.stPumps[i].ControllerIsOn := FALSE;
+		GVL.stPumps[i].DO1 := FALSE;
+		GVL.stPumps[i].AO1 := 0.0;
+		GVL.stPumps[i].PressureValue := 0.0;
+		GVL.stPumps[i].PressureLimit := 10.0;
+		GVL.stPumps[i].OverPressure := FALSE;
+		GVL.stPumps[i].FlowPathOpen := FALSE;
+		GVL.stPumps[i].Status := 0;
 	END_FOR
 	FOR i := 1 TO GVL.pressureSensorCount DO
 		stPressureSensors[i].Name := WSTRING_TO_STRING(GVL.sPressureSensorNames[i]);
@@ -161,7 +160,7 @@ END_IF
 flowPathCheck_WFI(
 	fbRequiredValves := wfiActiveFlowPath,
 	fbValves := stValves);
-stPumps[1].FlowPathOpen := flowPathCheck_WFI.fbPathOpen;
+GVL.stPumps[1].FlowPathOpen := flowPathCheck_WFI.fbPathOpen;
 //------------------------------------------------------------------------------------------//
 
 //------------------------- Overpressure Process (Development Only) --------------------------//
@@ -252,14 +251,15 @@ wfi_MassFlowAvg100(
 
 //------------------------------- Pump Control ------------------------------------//
 // Map filtered pressure readings to pumps for overpressure protection
-stPumps[1].PressureValue := stPressureSensors[1].FilteredValue;	// WFI Pump <- WFI Pressure
-stPumps[2].PressureValue := stPressureSensors[2].FilteredValue;	// Suspension Pump <- Suspension Pressure
-pumpCtrl(fbPumps := stPumps);
+GVL.stPumps[1].PressureValue := stPressureSensors[1].FilteredValue;	// WFI Pump <- WFI Pressure
+GVL.stPumps[2].PressureValue := stPressureSensors[2].FilteredValue;	// Suspension Pump <- Suspension Pressure
+pumpCtrl(fbPumps := GVL.stPumps);
 // WFI Pump I/O Mapping (index 1)
-IF mtbActive AND NOT stPumps[1].ControllerIsOn THEN
-	IO.DO_wfiPump := stPumps[1].DO1;
-	IO.AO_wfiPump := stPumps[1].AO1;
-	ELSE
+// FB_PumpCTRL handles safety (overpressure, flow path) in both open-loop and PI modes
+IF mtbActive OR GVL.stPumps[1].ControllerIsOn THEN
+	IO.DO_wfiPump := GVL.stPumps[1].DO1;
+	IO.AO_wfiPump := GVL.stPumps[1].AO1;
+ELSE
 	IO.DO_wfiPump := FALSE;
 	IO.AO_wfiPump := 0;
 END_IF
